@@ -1,13 +1,18 @@
 package com.hanar.kestrelmobileapp;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.ImageView;
+@SuppressLint("ClickableViewAccessibility")
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,14 +23,51 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        ImageView kestrelImage = findViewById(R.id.kestrel);
+        Button frontButton = findViewById(R.id.front_button);
+        Button backButton = findViewById(R.id.back_Button);
+
+        frontButton.setOnTouchListener((v, event)-> {
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    kestrelImage.setImageResource(R.drawable.kestrelfront);
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    v.performClick();
+                    frontButton.setPressed(true);
+                    backButton.setPressed(false);
+                    break;
+                }
+                default:
+                    break;
             }
+           return  true;
         });
+
+        backButton.setOnTouchListener((v, event)-> {
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    kestrelImage.setImageResource(R.drawable.kestrelback);
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    v.performClick();
+                    frontButton.setPressed(false);
+                    backButton.setPressed(true);
+                    break;
+                }
+                default:
+                    break;
+            }
+            return  true;
+        });
+
+        frontButton.setPressed(true);
+
+
     }
 
     @Override

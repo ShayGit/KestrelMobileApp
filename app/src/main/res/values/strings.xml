@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">KestrelMobileApp</string>
     <string name="action_settings">Settings</string>
+    <string name="user_guide_button">מדריך השימוש</string>
+    <string name="front_button">תצוגה קידמית</string>
+    <string name="back_Button">תצוגה אחורית</string>
 </resources>
