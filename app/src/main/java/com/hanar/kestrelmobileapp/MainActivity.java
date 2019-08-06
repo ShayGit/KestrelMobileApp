@@ -1,73 +1,69 @@
 package com.hanar.kestrelmobileapp;
 
 import android.annotation.SuppressLint;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageSwitcher;
 import android.widget.ImageView;
+import android.widget.ViewSwitcher;
+
 @SuppressLint("ClickableViewAccessibility")
 
 public class MainActivity extends AppCompatActivity {
+    private boolean isFront;
+    private Button frontBackButton;
+    private TransitionDrawable td;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        initialize();
+    }
+
+    private void initialize() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        frontBackButton = findViewById(R.id.frontBackButton);
         ImageView kestrelImage = findViewById(R.id.kestrel);
-        Button frontButton = findViewById(R.id.front_button);
-        Button backButton = findViewById(R.id.back_Button);
 
-        frontButton.setOnTouchListener((v, event)-> {
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
-                    kestrelImage.setImageResource(R.drawable.kestrelfront);
-                    break;
-                }
-                case MotionEvent.ACTION_UP: {
-                    v.performClick();
-                    frontButton.setPressed(true);
-                    backButton.setPressed(false);
-                    break;
-                }
-                default:
-                    break;
-            }
-           return  true;
+        td = new TransitionDrawable(new Drawable[]{
+                getResources().getDrawable(R.drawable.kestrelfront),
+                getResources().getDrawable(R.drawable.kestrelback)
         });
+        kestrelImage.setImageDrawable(td);
 
-        backButton.setOnTouchListener((v, event)-> {
+        isFront = true;
+        frontBackButton.setText(R.string.front_button);
 
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
-                    kestrelImage.setImageResource(R.drawable.kestrelback);
-                    break;
-                }
-                case MotionEvent.ACTION_UP: {
-                    v.performClick();
-                    frontButton.setPressed(false);
-                    backButton.setPressed(true);
-                    break;
-                }
-                default:
-                    break;
-            }
-            return  true;
-        });
+        frontBackButton.setOnClickListener((v) -> changeFrontBackImage());
+    }
 
-        frontButton.setPressed(true);
-
-
+    private void changeFrontBackImage() {
+        if (isFront) {
+            td.startTransition(500);
+            frontBackButton.setText(R.string.back_Button);
+        } else {
+            td.reverseTransition(500);
+            frontBackButton.setText(R.string.front_button);
+        }
+        isFront = !isFront;
     }
 
     @Override
