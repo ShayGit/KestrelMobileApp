@@ -10,36 +10,39 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/kestrel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scaleType="centerInside"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/kestrelfront" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/fieldText"
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/powerButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:autoSizeTextType="uniform"
-            android:gravity="center"
-            android:text="ssdfdfs"
             app:layout_constraintBottom_toBottomOf="@id/kestrel"
             app:layout_constraintEnd_toEndOf="@id/kestrel"
-            app:layout_constraintHeight_percent="0.1"
-            app:layout_constraintHorizontal_bias="0.6"
+            app:layout_constraintHeight_percent="0.08"
+            app:layout_constraintHorizontal_bias="0.508"
             app:layout_constraintStart_toStartOf="@id/kestrel"
             app:layout_constraintTop_toTopOf="@id/kestrel"
-            app:layout_constraintVertical_bias="0.47"
-            app:layout_constraintWidth_percent="0.3" />
+            app:layout_constraintVertical_bias="0.687"
+            app:layout_constraintWidth_percent="0.13" />
 
+        <ProgressBar
+            android:id="@+id/pb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/kestrel"
+            app:layout_constraintEnd_toEndOf="@id/kestrel"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@id/kestrel"
+            app:layout_constraintTop_toTopOf="@id/kestrel" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.hanar.kestrelmobileapp.ZoomLayout>

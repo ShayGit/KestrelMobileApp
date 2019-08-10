@@ -5,55 +5,75 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.view.MotionEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.ImageSwitcher;
 import android.widget.ImageView;
-import android.widget.ViewSwitcher;
+import com.google.android.material.button.MaterialButton;
 
 @SuppressLint("ClickableViewAccessibility")
 
 public class MainActivity extends AppCompatActivity {
     private boolean isFront;
-    private Button frontBackButton;
+    private MaterialButton frontBackButton;
     private TransitionDrawable td;
+    KestrelLogic kestrelLogic;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initialize();
+      kestrelLogic = new KestrelLogic(this);
+
     }
 
     private void initialize() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         frontBackButton = findViewById(R.id.frontBackButton);
         ImageView kestrelImage = findViewById(R.id.kestrel);
-
         td = new TransitionDrawable(new Drawable[]{
                 getResources().getDrawable(R.drawable.kestrelfront),
                 getResources().getDrawable(R.drawable.kestrelback)
         });
         kestrelImage.setImageDrawable(td);
-
         isFront = true;
         frontBackButton.setText(R.string.front_button);
-
         frontBackButton.setOnClickListener((v) -> changeFrontBackImage());
     }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+       kestrelLogic.getLocationHandling().onRequestPermissionsResult(requestCode,permissions,grantResults);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void changeFrontBackImage() {
         if (isFront) {

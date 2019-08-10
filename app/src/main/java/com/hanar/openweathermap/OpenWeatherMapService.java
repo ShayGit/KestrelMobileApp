@@ -1,3 +1,4 @@
+/*
 package com.hanar.openweathermap;
 
 import android.util.JsonReader;
@@ -12,26 +13,30 @@ import org.json.*;
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.*;
 
+*/
 /**
  * The  OpenWeatherMapService which provides the weather information.
- * 
+ *
  * @author Shay Cohen and Lior Krengel and Aviv Shrem.
- */
+ *//*
+
 
 public class OpenWeatherMapService implements IWeatherDataService{
 	private final String APP_ID = "7babd752067089ea9e326668a34536e1";
 	private static OpenWeatherMapService serviceInstance = null;
-	
+
 	private OpenWeatherMapService() { }
 
-	/**
+	*/
+/**
 	 * Implemented as a singleton.
 	 * Gets or creates the service instance.
 	 *
 	 * @return the instance of OpenWeatherMapService
-	 */
+	 *//*
 
-	public static OpenWeatherMapService getServiceInstance()      
+
+	public static OpenWeatherMapService getServiceInstance()
     {
         if (serviceInstance == null)
         {
@@ -41,13 +46,15 @@ public class OpenWeatherMapService implements IWeatherDataService{
         return serviceInstance;
     }
 
-	/**
+	*/
+/**
 	 * Gets the weather data in a specific location.
 	 *
 	 * @param location - the location which contains city or country and city.
 	 * @return the WeatherData object which contains the information about the weather a the location
 	 * @throws WeatherDataServiceException - the service exception.
-	 */
+	 *//*
+
 
 	@Override
 	public WeatherData getWeatherData(Location location) throws WeatherDataServiceException
@@ -58,7 +65,7 @@ public class OpenWeatherMapService implements IWeatherDataService{
 			try {
 				if(location.getCountry() == null)
 				{
-					url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+location.getCity()+"&APPID="+APP_ID+"&units=metric");		
+					url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+location.getCity()+"&APPID="+APP_ID+"&units=metric");
 
 				}
 				else
@@ -74,14 +81,16 @@ public class OpenWeatherMapService implements IWeatherDataService{
 	}
 
 
-	/**
+	*/
+/**
 	 * Gets the weather data by parsing the json data from the url.
 	 *
 	 * @param url - the site address which contains weather data in json
 	 * @return the WeatherData object which contains the information about the weather in the location
 	 * @throws WeatherDataServiceException - the service exception.
-	 */
-	/*
+	 *//*
+
+
 	private static WeatherData jsonWeatherParse(URL url) throws WeatherDataServiceException
 	{
 		JSONArray ja;
@@ -95,7 +104,7 @@ public class OpenWeatherMapService implements IWeatherDataService{
 		InputStreamReader inr;
 		JsonReader rdr;
 		JSONObject jo;
-		
+
 		try {
 			HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
@@ -138,16 +147,16 @@ public class OpenWeatherMapService implements IWeatherDataService{
 			{
 				weatherData.setRainVolume("0");
 			}
-			sys = jo.getJSONObject("sys");		
+			sys = jo.getJSONObject("sys");
 			cityServerName = sys.getString("country");
-			weatherData.setServerCountry(cityServerName);		
+			weatherData.setServerCountry(cityServerName);
 			countryServerName = jo.getString("name");
 			weatherData.setServerCity(countryServerName);
 		} catch (ProtocolException e) {
 			throw new WeatherDataServiceException(e.getMessage(),e);
 		}
 		 catch (IOException e) {
-			throw new WeatherDataServiceException("IO Error or a bad location input",e);	
+			throw new WeatherDataServiceException("IO Error or a bad location input",e);
 		}
 		 catch (ClassCastException e) {
 			throw new WeatherDataServiceException("Information Parsing Error",e);
@@ -160,8 +169,9 @@ public class OpenWeatherMapService implements IWeatherDataService{
 
 		return weatherData;
 	}
-	*/
+
 
 }
 
 
+*/
