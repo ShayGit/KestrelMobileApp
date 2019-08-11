@@ -24,6 +24,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.hanar.openweathermap.AsyncTaskResult;
+import com.hanar.openweathermap.IWeatherDataService;
+import com.hanar.openweathermap.WeatherData;
+import com.hanar.openweathermap.WeatherDataServiceException;
+import com.hanar.openweathermap.WeatherDataServiceFactory;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,12 +44,18 @@ public class LocationHandling {
     private ProgressBar pB;
     private boolean isRandomValues;
     private AppCompatActivity activity;
+    private IWeatherDataService weatherService;
+    private WeatherData weatherData;
+    private boolean locationAvailable;
 
     public LocationHandling(AppCompatActivity activityChain) {
         activity = activityChain;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         isRandomValues = false;
         pB = (ProgressBar) activity.findViewById(R.id.pb);
+        weatherService = WeatherDataServiceFactory.getWeatherDataService(WeatherDataServiceFactory.eServiceType.OpenWeatherMap);
+        weatherData = null;
+        locationAvailable = false;
 
     }
 
@@ -83,11 +94,11 @@ public class LocationHandling {
 
     @SuppressLint("MissingPermission")
     private void getLocationAndUpdateUI() {
+        pB.setVisibility(View.VISIBLE);
         fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
                 if (location == null) {
-                    pB.setVisibility(View.VISIBLE);
                     locationRequest = LocationRequest.create();
                     locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
                     locationRequest.setInterval(0);
@@ -102,7 +113,6 @@ public class LocationHandling {
                                 if (location != null) {
                                     //  if (longtitude == 0.0) {
                                     Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
-                                    pB.setVisibility(View.INVISIBLE);
                                     retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
                                     updateKestrelUI();
 
@@ -165,41 +175,66 @@ public class LocationHandling {
 
     private void isLocationEnabled() {
         final LocationManager manager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
         } else {
-            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
-            builder.setMessage("נראה שהמיקום מופעל אך בכל זאת יש בעיה כלשהי, נאלץ לבטל את פיצ'ר זה ויוצגו ערכים אקראיים, לנסיון נוסף הפעל את האפליקציה מחדש")
-                    .setCancelable(false)
-                    .setPositiveButton("הבנתי", (dialog, id) -> {
-                        setUiRandomValues();
-                        dialog.dismiss();
-                    }).create().show();
+            if (checkNetworkConnected()) {
+                final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+                builder.setMessage("נראה שהמיקום מופעל אך בכל זאת יש בעיה כלשהי, נאלץ לבטל את פיצ'ר זה ויוצגו ערכים אקראיים, לנסיון נוסף הפעל את האפליקציה מחדש.")
+                        .setCancelable(false)
+                        .setPositiveButton("הבנתי", (dialog, id) -> {
+                            setUiRandomValues();
+                            dialog.dismiss();
+                        }).create().show();
+            }
         }
     }
 
     private void retrieveWeatherByLocation(Double i_longtitude, Double i_latitude) {
         longtitude = i_longtitude;
         latitude = i_latitude;
-
+        AsyncTaskResult<WeatherData> atr = null;
         try {
-            checkNetworkConnected();
+            atr = weatherService.getWeatherData(longtitude, latitude);
 
-        } catch (Exception e) {
+            if (atr == null) {
+                Toast.makeText(activity, "תוצאת התהליך לקבלת מידע מזג האוויר null", Toast.LENGTH_SHORT).show();
+
+            } else if (atr.getError() != null) {
+                Toast.makeText(activity, atr.getError().getMessage(), Toast.LENGTH_SHORT).show();
+                if (weatherData == null) {
+                    checkNetworkConnected();
+                }
+                atr.getError().printStackTrace();
+            } else if (atr.getResult() != null) {
+                weatherData = atr.getResult();
+            }
+        } catch (WeatherDataServiceException e) {
+            Toast.makeText(activity, atr.getError().getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void updateKestrelUI() {
 // invoke kestrelLogicListener
+        pB.setVisibility(View.INVISIBLE);
+        if (weatherData != null) {
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+            builder.setMessage(weatherData.toString())
+                    .setCancelable(false)
+                    .setPositiveButton("אוקיי", (dialog, id) -> {
+                        dialog.dismiss();
+                    }).create().show();
+        }
     }
 
+
     private void buildAlertMessageNoGps() {
-        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
         builder.setMessage("אנא הפעל את המיקום במכשירך על מנת שפיצ'ר זה יעבוד, במידה ואינך מעוניין, לחץ על 'ביטול' וערכי הקסטרל יהיו רנדומליים.")
                 .setCancelable(false)
                 .setPositiveButton("הפעל מיקום", (dialog, id) -> {
                     activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    dialog.dismiss();
                 })
                 .setNegativeButton("ביטול", (dialog, id) -> {
                     dialog.cancel();
@@ -207,23 +242,29 @@ public class LocationHandling {
                 }).create().show();
     }
 
-    private void checkNetworkConnected() {
+    private boolean checkNetworkConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        if (!(activeNetworkInfo != null && activeNetworkInfo.isConnected())) {
-            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+        boolean connected = false;
+        connected = (activeNetworkInfo != null && activeNetworkInfo.isConnected());
+        if (!connected) {
+            pB.setVisibility(View.INVISIBLE);
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
             builder.setMessage("אנא הפעל את האינטרנט במכשירך על מנת שפיצ'ר זה יעבוד, במידה ואינך מעוניין, לחץ על 'ביטול' וערכי הקסטרל יהיו רנדומליים.")
                     .setCancelable(false)
                     .setPositiveButton("הפעל נתונים סלולריים", (dialog, id) -> {
+                        dialog.dismiss();
                         activity.startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
                     }).setNegativeButton("הפעל Wi-Fi", (dialog, id) -> {
+                dialog.dismiss();
                 activity.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
             })
                     .setNeutralButton("ביטול", (dialog, id) -> {
-                        dialog.cancel();
+                        dialog.dismiss();
                         setUiRandomValues();
                     }).create().show();
         }
+        return connected;
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

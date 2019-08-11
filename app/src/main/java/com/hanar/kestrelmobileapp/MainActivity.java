@@ -54,27 +54,10 @@ public class MainActivity extends AppCompatActivity {
        kestrelLogic.getLocationHandling().onRequestPermissionsResult(requestCode,permissions,grantResults);
     }
 
+public void onWeatherDataError()
+{
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
     private void changeFrontBackImage() {
         if (isFront) {
             td.startTransition(500);
