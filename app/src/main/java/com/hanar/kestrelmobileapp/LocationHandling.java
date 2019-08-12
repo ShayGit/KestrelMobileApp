@@ -46,7 +46,6 @@ public class LocationHandling {
     private AppCompatActivity activity;
     private IWeatherDataService weatherService;
     private WeatherData weatherData;
-    private boolean locationAvailable;
 
     public LocationHandling(AppCompatActivity activityChain) {
         activity = activityChain;
@@ -55,7 +54,6 @@ public class LocationHandling {
         pB = (ProgressBar) activity.findViewById(R.id.pb);
         weatherService = WeatherDataServiceFactory.getWeatherDataService(WeatherDataServiceFactory.eServiceType.OpenWeatherMap);
         weatherData = null;
-        locationAvailable = false;
 
     }
 
@@ -90,37 +88,47 @@ public class LocationHandling {
 
     private void setUiRandomValues() {
         isRandomValues = true;
+        WeatherData weatherData = new WeatherData();
+
+
     }
 
     @SuppressLint("MissingPermission")
     private void getLocationAndUpdateUI() {
         pB.setVisibility(View.VISIBLE);
         fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+
             @Override
             public void onSuccess(Location location) {
                 if (location == null) {
                     locationRequest = LocationRequest.create();
                     locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    locationRequest.setInterval(0);
-                    locationRequest.setFastestInterval(0);
+                    locationRequest.setInterval(10000);
+                    locationRequest.setNumUpdates(1);
+                    locationRequest.setMaxWaitTime(10000);
+                    //locationRequest.setFastestInterval(0);
                     locationCallback = new LocationCallback() {
+                        boolean uiUpdated = false;
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
                             if (locationResult == null) {
+                                if (fusedLocationClient != null &&uiUpdated) {
+                                    fusedLocationClient.removeLocationUpdates(this);
+                                }
                                 return;
                             }
                             for (Location location : locationResult.getLocations()) {
                                 if (location != null) {
-                                    //  if (longtitude == 0.0) {
-                                    Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
-                                    retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
-                                    updateKestrelUI();
-
-                                    //}
+                                      if (!uiUpdated) {
+                                          Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
+                                          retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
+                                          updateKestrelUI();
+                                          uiUpdated = true;
+                                      }
                                     break;
                                 }
                             }
-                            if (fusedLocationClient != null) {
+                            if (fusedLocationClient != null &&uiUpdated) {
                                 fusedLocationClient.removeLocationUpdates(this);
                             }
                             Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
@@ -130,13 +138,14 @@ public class LocationHandling {
                         public void onLocationAvailability(LocationAvailability locationAvailability) {
                             if (!locationAvailability.isLocationAvailable()) {
                                 pB.setVisibility(View.INVISIBLE);
-                                Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
                                 if (longtitude == 0.0 && latitude == 0.0) {
                                     isLocationEnabled();
-                                } else {
-                                    retrieveWeatherByLocation(longtitude, latitude);
-                                    updateKestrelUI();
-                                }
+                                } else if(!uiUpdated){
+                                 retrieveWeatherByLocation(longtitude, latitude);
+                                  updateKestrelUI();
+                                  uiUpdated = true;
+                                 }
                             }
                         }
                     };

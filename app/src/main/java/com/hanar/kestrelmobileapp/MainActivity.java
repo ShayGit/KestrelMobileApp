@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.ViewCompat;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton frontBackButton;
     private TransitionDrawable td;
     KestrelLogic kestrelLogic;
+    ImageView kestrelImage;
 
 
     @Override
@@ -37,11 +39,12 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         frontBackButton = findViewById(R.id.frontBackButton);
-        ImageView kestrelImage = findViewById(R.id.kestrel);
+         kestrelImage= findViewById(R.id.kestrel);
         td = new TransitionDrawable(new Drawable[]{
                 getResources().getDrawable(R.drawable.kestrelfront),
                 getResources().getDrawable(R.drawable.kestrelback)
         });
+        td.setCrossFadeEnabled(true);
         kestrelImage.setImageDrawable(td);
         isFront = true;
         frontBackButton.setText(R.string.front_button);
@@ -54,16 +57,16 @@ public class MainActivity extends AppCompatActivity {
        kestrelLogic.getLocationHandling().onRequestPermissionsResult(requestCode,permissions,grantResults);
     }
 
-public void onWeatherDataError()
-{
-
-}
     private void changeFrontBackImage() {
         if (isFront) {
             td.startTransition(500);
+            kestrelLogic.disableKestrelButtons();
+            kestrelLogic.invisibleKestrelMeasurementViews();
             frontBackButton.setText(R.string.back_Button);
         } else {
             td.reverseTransition(500);
+            kestrelLogic.enableKestrelButtons();
+            kestrelLogic.visibleKestrelMeasurementViews();
             frontBackButton.setText(R.string.front_button);
         }
         isFront = !isFront;

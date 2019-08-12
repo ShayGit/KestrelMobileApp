@@ -13,6 +13,8 @@ public class WeatherData {
     private float temperature; //Celsius
     private int humidity; //%
     private float windSpeed; //meter/sec
+    private  double windChill; //Celsius
+    private float discomfortIndex; //Celsius
 
     /**
      * Constructor, initializing the fields containing the weather data.
@@ -23,7 +25,7 @@ public class WeatherData {
     /**
      * Gets the temperature.
      *
-     * @return the temperature (String)
+     * @return the temperature (Float)
      */
     public float getTemperature() {
         return temperature;
@@ -32,7 +34,7 @@ public class WeatherData {
     /**
      * Sets the temperature.
      *
-     * @param temperature the new temperature (String)
+     * @param temperature the new temperature (Float)
      */
     public void setTemperature(float temperature) {
         this.temperature = temperature;
@@ -41,7 +43,7 @@ public class WeatherData {
     /**
      * Gets the humidity.
      *
-     * @return the humidity (String)
+     * @return the humidity (int)
      */
     public int getHumidity() {
         return humidity;
@@ -50,7 +52,7 @@ public class WeatherData {
     /**
      * Sets the humidity.
      *
-     * @param humidity the new humidity (String)
+     * @param humidity the new humidity (int)
      */
     public void setHumidity(int humidity) {
         this.humidity = humidity;
@@ -59,7 +61,7 @@ public class WeatherData {
     /**
      * Gets the wind speed.
      *
-     * @return the wind speed (String)
+     * @return the wind speed (Float)
      */
     public float getWindSpeed() {
         return windSpeed;
@@ -68,11 +70,49 @@ public class WeatherData {
     /**
      * Sets the wind speed.
      *
-     * @param windSpeed (String)
+     * @param windSpeed (Float)
      */
     public void setWindSpeed(float windSpeed) {
         this.windSpeed = windSpeed;
     }
+
+    /**
+     * Gets the wind chill.
+     *
+     * @return the wind chill (Float)
+     */
+    public double getWindChill() {
+        return windChill;
+    }
+
+    /**
+     * Sets the wind chil.
+     *
+     * @param windChill (Float)
+     */
+    public void setWindChill(double windChill) {
+        this.windChill = windChill;
+    }
+
+    /**
+     * Gets the wind chill.
+     *
+     * @return the discomfortIndex (Float)
+     */
+    public float getDiscomfortIndex() {
+        return discomfortIndex;
+    }
+
+    /**
+     * Sets the wind chil.
+     *
+     * @param discomfortIndex (Float)
+     */
+    public void setDiscomfortIndex(float discomfortIndex) {
+        this.discomfortIndex = discomfortIndex;
+    }
+
+
 
 
     /**
@@ -93,7 +133,7 @@ public class WeatherData {
     @Override
     public String toString() {
         return " Temperature=" + temperature + " humidity="
-                + humidity + ", windSpeed=" + windSpeed;
+                + humidity + ", windSpeed=" + windSpeed+", windChill="+windChill+", discomfortIndex="+discomfortIndex;
     }
 
     /**

@@ -36,4 +36,8 @@
         <item name="backgroundTint">?attr/colorAccent</item>
     </style>
 
+    <style name="AppTheme.KestrelButton" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/transparent</item>
+    </style>
+
 </resources>
