@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
             frontBackButton.setText(R.string.back_Button);
         } else {
             td.reverseTransition(500);
-            kestrelLogic.enableKestrelButtons();
             kestrelLogic.visibleKestrelMeasurementViews();
+            kestrelLogic.enableKestrelButtons();
             frontBackButton.setText(R.string.front_button);
         }
         isFront = !isFront;
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            kestrelLogic.getLocationHandling().setIsRandomValues(false);
             return true;
         }
 

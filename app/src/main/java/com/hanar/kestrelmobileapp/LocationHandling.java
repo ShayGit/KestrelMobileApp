@@ -46,6 +46,10 @@ public class LocationHandling {
     private AppCompatActivity activity;
     private IWeatherDataService weatherService;
     private WeatherData weatherData;
+    public onUpdateUIListener uiListener;
+    interface onUpdateUIListener{
+        void onUpdateUI(WeatherData wd);
+    }
 
     public LocationHandling(AppCompatActivity activityChain) {
         activity = activityChain;
@@ -54,7 +58,6 @@ public class LocationHandling {
         pB = (ProgressBar) activity.findViewById(R.id.pb);
         weatherService = WeatherDataServiceFactory.getWeatherDataService(WeatherDataServiceFactory.eServiceType.OpenWeatherMap);
         weatherData = null;
-
     }
 
     public void locationRequestOnKestrelStart() {
@@ -89,7 +92,7 @@ public class LocationHandling {
     private void setUiRandomValues() {
         isRandomValues = true;
         WeatherData weatherData = new WeatherData();
-
+        uiListener.onUpdateUI(weatherData);
 
     }
 
@@ -97,7 +100,7 @@ public class LocationHandling {
     private void getLocationAndUpdateUI() {
         pB.setVisibility(View.VISIBLE);
         fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-
+            boolean uiUpdated = false;
             @Override
             public void onSuccess(Location location) {
                 if (location == null) {
@@ -108,7 +111,6 @@ public class LocationHandling {
                     locationRequest.setMaxWaitTime(10000);
                     //locationRequest.setFastestInterval(0);
                     locationCallback = new LocationCallback() {
-                        boolean uiUpdated = false;
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
                             if (locationResult == null) {
@@ -139,13 +141,15 @@ public class LocationHandling {
                             if (!locationAvailability.isLocationAvailable()) {
                                 pB.setVisibility(View.INVISIBLE);
                                 //Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
-                                if (longtitude == 0.0 && latitude == 0.0) {
-                                    isLocationEnabled();
-                                } else if(!uiUpdated){
-                                 retrieveWeatherByLocation(longtitude, latitude);
-                                  updateKestrelUI();
-                                  uiUpdated = true;
-                                 }
+                                if(!uiUpdated) {
+                                    if (longtitude == 0.0 && latitude == 0.0) {
+                                        isLocationEnabled();
+                                    } else {
+                                        retrieveWeatherByLocation(longtitude, latitude);
+                                        updateKestrelUI();
+                                    }
+                                    uiUpdated = true;
+                                }
                             }
                         }
                     };
@@ -157,6 +161,7 @@ public class LocationHandling {
                 }
             }
         }).addOnFailureListener(activity, new OnFailureListener() {
+            boolean uiUpdated = false;
             @Override
             public void onFailure(@NonNull Exception e) {
                 if (e instanceof ResolvableApiException) {
@@ -165,14 +170,17 @@ public class LocationHandling {
                     // try {
                     // Show the dialog by calling startResolutionForResult(),
                     // and check the result in onActivityResult().
-                    if (longtitude == 0.0 && latitude == 0.0) {
-                        // ResolvableApiException resolvable = (ResolvableApiException) e;
-                        // resolvable.startResolutionForResult(MainActivity.this,
-                        //       REQUEST_CHECK_SETTINGS);
-                        isLocationEnabled();
-                    } else {
-                        retrieveWeatherByLocation(longtitude, latitude);
-                        updateKestrelUI();
+                    if(!uiUpdated) {
+                        if (longtitude == 0.0 && latitude == 0.0) {
+                            // ResolvableApiException resolvable = (ResolvableApiException) e;
+                            // resolvable.startResolutionForResult(MainActivity.this,
+                            //       REQUEST_CHECK_SETTINGS);
+                            isLocationEnabled();
+                        } else {
+                            retrieveWeatherByLocation(longtitude, latitude);
+                            updateKestrelUI();
+                        }
+                        uiUpdated = true;
                     }
                     //   } catch (IntentSender.SendIntentException sendEx) {
                     // Ignore the error.
@@ -226,13 +234,8 @@ public class LocationHandling {
     private void updateKestrelUI() {
 // invoke kestrelLogicListener
         pB.setVisibility(View.INVISIBLE);
-        if (weatherData != null) {
-            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
-            builder.setMessage(weatherData.toString())
-                    .setCancelable(false)
-                    .setPositiveButton("אוקיי", (dialog, id) -> {
-                        dialog.dismiss();
-                    }).create().show();
+        if(uiListener!=null) {
+            uiListener.onUpdateUI(weatherData);
         }
     }
 
@@ -299,5 +302,9 @@ public class LocationHandling {
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    public void setIsRandomValues(boolean i_isRandomValues) {
+        isRandomValues = i_isRandomValues;
     }
 }

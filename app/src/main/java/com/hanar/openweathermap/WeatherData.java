@@ -14,7 +14,7 @@ public class WeatherData {
     private int humidity; //%
     private float windSpeed; //meter/sec
     private  double windChill; //Celsius
-    private float discomfortIndex; //Celsius
+    private double discomfortIndex; //Celsius
 
     /**
      * Constructor, initializing the fields containing the weather data.
@@ -99,7 +99,7 @@ public class WeatherData {
      *
      * @return the discomfortIndex (Float)
      */
-    public float getDiscomfortIndex() {
+    public double getDiscomfortIndex() {
         return discomfortIndex;
     }
 
@@ -108,7 +108,7 @@ public class WeatherData {
      *
      * @param discomfortIndex (Float)
      */
-    public void setDiscomfortIndex(float discomfortIndex) {
+    public void setDiscomfortIndex(double discomfortIndex) {
         this.discomfortIndex = discomfortIndex;
     }
 

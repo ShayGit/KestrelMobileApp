@@ -36,8 +36,10 @@
         <item name="backgroundTint">?attr/colorAccent</item>
     </style>
 
-    <style name="AppTheme.KestrelButton" parent="Widget.MaterialComponents.Button">
+    <style name="AppTheme.KestrelButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+    <item name="android:background">@drawable/round_button</item>
         <item name="backgroundTint">@color/transparent</item>
     </style>
+
 
 </resources>

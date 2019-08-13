@@ -32,6 +32,9 @@ public class JSONWeatherParser {
             {
                 weatherData.setWindChill(getWindChillByFormula(weatherData.getTemperature(),weatherData.getWindSpeed()));
             }
+            weatherData.setDiscomfortIndex(getDiscomfortIndexByFormula(weatherData.getTemperature(),weatherData.getHumidity()));
+
+
         }catch (JSONException e)
         {
             throw new WeatherDataServiceException("בעיה בJSON",e);
@@ -44,6 +47,11 @@ public class JSONWeatherParser {
         double windspeedKMH = windspeed * 3600/1000;
         double windChill = 13.12+ (0.6215*temperature)-(11.37*Math.pow(windspeedKMH,0.16))+ (0.3965*temperature*Math.pow(windspeedKMH,0.16));
         return windChill;
+    }
+    private static double getDiscomfortIndexByFormula(float temperature,int humidity)
+    {
+        double discomfortIndex = -2.39+ 0.785*temperature +(0.0222*humidity)+ (0.0024*temperature*humidity);
+        return discomfortIndex;
     }
 
     private static JSONObject getObject(String tagName, JSONObject jObj) throws JSONException {
