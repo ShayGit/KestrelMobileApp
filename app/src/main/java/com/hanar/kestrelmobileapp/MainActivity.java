@@ -61,11 +61,11 @@ public class MainActivity extends AppCompatActivity {
         if (isFront) {
             td.startTransition(500);
             kestrelLogic.disableKestrelButtons();
-            kestrelLogic.invisibleKestrelMeasurementViews();
+            kestrelLogic.fadeOutKestrelMeasurementViews();
             frontBackButton.setText(R.string.back_Button);
         } else {
             td.reverseTransition(500);
-            kestrelLogic.visibleKestrelMeasurementViews();
+            kestrelLogic.fadeInKestrelMeasurementViews();
             kestrelLogic.enableKestrelButtons();
             frontBackButton.setText(R.string.front_button);
         }

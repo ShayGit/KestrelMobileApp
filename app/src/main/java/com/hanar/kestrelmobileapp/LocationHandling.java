@@ -47,6 +47,7 @@ public class LocationHandling {
     private IWeatherDataService weatherService;
     private WeatherData weatherData;
     public onUpdateUIListener uiListener;
+    private boolean isLocationOrNetworkDisabled;
     interface onUpdateUIListener{
         void onUpdateUI(WeatherData wd);
     }
@@ -58,6 +59,7 @@ public class LocationHandling {
         pB = (ProgressBar) activity.findViewById(R.id.pb);
         weatherService = WeatherDataServiceFactory.getWeatherDataService(WeatherDataServiceFactory.eServiceType.OpenWeatherMap);
         weatherData = null;
+        isLocationOrNetworkDisabled = false;
     }
 
     public void locationRequestOnKestrelStart() {
@@ -98,18 +100,17 @@ public class LocationHandling {
 
     @SuppressLint("MissingPermission")
     private void getLocationAndUpdateUI() {
-        pB.setVisibility(View.VISIBLE);
         fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             boolean uiUpdated = false;
             @Override
             public void onSuccess(Location location) {
                 if (location == null) {
+                    pB.setVisibility(View.VISIBLE);
                     locationRequest = LocationRequest.create();
                     locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    locationRequest.setInterval(10000);
+                    locationRequest.setInterval(5 * 1000);
                     locationRequest.setNumUpdates(1);
-                    locationRequest.setMaxWaitTime(10000);
-                    //locationRequest.setFastestInterval(0);
+                    locationRequest.setMaxWaitTime(20 * 1000);
                     locationCallback = new LocationCallback() {
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
@@ -130,7 +131,7 @@ public class LocationHandling {
                                     break;
                                 }
                             }
-                            if (fusedLocationClient != null &&uiUpdated) {
+                            if (fusedLocationClient != null && uiUpdated) {
                                 fusedLocationClient.removeLocationUpdates(this);
                             }
                             Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
@@ -193,9 +194,12 @@ public class LocationHandling {
     private void isLocationEnabled() {
         final LocationManager manager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            isLocationOrNetworkDisabled = true;
             buildAlertMessageNoGps();
         } else {
+            isLocationOrNetworkDisabled = false;
             if (checkNetworkConnected()) {
+                isLocationOrNetworkDisabled = false;
                 final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
                 builder.setMessage("נראה שהמיקום מופעל אך בכל זאת יש בעיה כלשהי, נאלץ לבטל את פיצ'ר זה ויוצגו ערכים אקראיים, לנסיון נוסף הפעל את האפליקציה מחדש.")
                         .setCancelable(false)
@@ -203,6 +207,9 @@ public class LocationHandling {
                             setUiRandomValues();
                             dialog.dismiss();
                         }).create().show();
+            }
+            else{
+                isLocationOrNetworkDisabled = true;
             }
         }
     }
@@ -247,6 +254,7 @@ public class LocationHandling {
                 .setPositiveButton("הפעל מיקום", (dialog, id) -> {
                     activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     dialog.dismiss();
+                    updateKestrelUI();
                 })
                 .setNegativeButton("ביטול", (dialog, id) -> {
                     dialog.cancel();
@@ -267,14 +275,17 @@ public class LocationHandling {
                     .setPositiveButton("הפעל נתונים סלולריים", (dialog, id) -> {
                         dialog.dismiss();
                         activity.startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
+                        updateKestrelUI();
                     }).setNegativeButton("הפעל Wi-Fi", (dialog, id) -> {
                 dialog.dismiss();
                 activity.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                updateKestrelUI();
             })
                     .setNeutralButton("ביטול", (dialog, id) -> {
                         dialog.dismiss();
                         setUiRandomValues();
                     }).create().show();
+
         }
         return connected;
     }
@@ -307,4 +318,10 @@ public class LocationHandling {
     public void setIsRandomValues(boolean i_isRandomValues) {
         isRandomValues = i_isRandomValues;
     }
+
+    boolean getIsLocationOrNetworkDisabled()
+    {
+        return this.isLocationOrNetworkDisabled;
+    }
+
 }

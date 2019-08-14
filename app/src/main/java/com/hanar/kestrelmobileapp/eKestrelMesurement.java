@@ -9,6 +9,14 @@ enum eKestrelMeasurement {
 
 
     public final int valueId;
+    public eKestrelMeasurement next() {
+        // No bounds checking required here, because the last instance overrides
+        return values()[ordinal() + 1];
+    }
+    public eKestrelMeasurement previous() {
+        // No bounds checking required here, because the last instance overrides
+        return values()[ordinal() - 1];
+    }
 
     private eKestrelMeasurement(int id) {
         this.valueId = id;
