@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.lang.Math;
 
+import java.math.BigDecimal;
 import java.net.URL;
 
 public class JSONWeatherParser {
@@ -42,16 +43,16 @@ public class JSONWeatherParser {
         return weatherData;
     }
 
-    private static double getWindChillByFormula(float temperature,float windspeed)
+    public static float getWindChillByFormula(float temperature,float windspeed)
     {
-        double windspeedKMH = windspeed * 3600/1000;
-        double windChill = 13.12+ (0.6215*temperature)-(11.37*Math.pow(windspeedKMH,0.16))+ (0.3965*temperature*Math.pow(windspeedKMH,0.16));
-        return windChill;
+        float windspeedKMH = windspeed * 3600/1000;
+        BigDecimal windChill = new BigDecimal(13.12+ (0.6215*temperature)-(11.37*Math.pow(windspeedKMH,0.16))+ (0.3965*temperature*Math.pow(windspeedKMH,0.16)));
+        return windChill.floatValue();
     }
-    private static double getDiscomfortIndexByFormula(float temperature,int humidity)
+    public static float getDiscomfortIndexByFormula(float temperature,int humidity)
     {
-        double discomfortIndex = -2.39+ 0.785*temperature +(0.0222*humidity)+ (0.0024*temperature*humidity);
-        return discomfortIndex;
+        BigDecimal discomfortIndex = new BigDecimal(-2.39+ 0.785*temperature +(0.0222*humidity)+ (0.0024*temperature*humidity));
+        return discomfortIndex.floatValue();
     }
 
     private static JSONObject getObject(String tagName, JSONObject jObj) throws JSONException {

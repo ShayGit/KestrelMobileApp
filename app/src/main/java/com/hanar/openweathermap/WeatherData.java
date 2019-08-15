@@ -1,5 +1,6 @@
 package com.hanar.openweathermap;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -13,8 +14,8 @@ public class WeatherData {
     private float temperature; //Celsius
     private int humidity; //%
     private float windSpeed; //meter/sec
-    private  double windChill; //Celsius
-    private double discomfortIndex; //Celsius
+    private  float windChill; //Celsius
+    private float discomfortIndex; //Celsius
 
     /**
      * Constructor, initializing the fields containing the weather data.
@@ -37,7 +38,7 @@ public class WeatherData {
      * @param temperature the new temperature (Float)
      */
     public void setTemperature(float temperature) {
-        this.temperature = temperature;
+        this.temperature = Float.valueOf(String.format(Locale.US, "%.2f", temperature));
     }
 
     /**
@@ -73,7 +74,7 @@ public class WeatherData {
      * @param windSpeed (Float)
      */
     public void setWindSpeed(float windSpeed) {
-        this.windSpeed = windSpeed;
+        this.windSpeed = Float.valueOf(String.format(Locale.US, "%.2f", windSpeed));
     }
 
     /**
@@ -81,7 +82,7 @@ public class WeatherData {
      *
      * @return the wind chill (Float)
      */
-    public double getWindChill() {
+    public float getWindChill() {
         return windChill;
     }
 
@@ -90,8 +91,8 @@ public class WeatherData {
      *
      * @param windChill (Float)
      */
-    public void setWindChill(double windChill) {
-        this.windChill = windChill;
+    public void setWindChill(float windChill) {
+        this.windChill = Float.valueOf(String.format(Locale.US, "%.2f", windChill));
     }
 
     /**
@@ -99,7 +100,7 @@ public class WeatherData {
      *
      * @return the discomfortIndex (Float)
      */
-    public double getDiscomfortIndex() {
+    public float getDiscomfortIndex() {
         return discomfortIndex;
     }
 
@@ -108,8 +109,8 @@ public class WeatherData {
      *
      * @param discomfortIndex (Float)
      */
-    public void setDiscomfortIndex(double discomfortIndex) {
-        this.discomfortIndex = discomfortIndex;
+    public void setDiscomfortIndex(float discomfortIndex) {
+        this.discomfortIndex = Float.valueOf(String.format(Locale.US, "%.2f", discomfortIndex));
     }
 
 

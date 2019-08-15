@@ -77,7 +77,6 @@
         android:id="@+id/measurementTextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:autoSizeTextType="uniform"
         android:fitsSystemWindows="false"
         android:gravity="top|end"
         android:lines="1"
@@ -132,6 +131,21 @@
         app:layout_constraintTop_toTopOf="@id/kestrel"
         app:layout_constraintVertical_bias="0.54"
         app:layout_constraintWidth_percent="0.03" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/measurementIconText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="@id/kestrel"
+        app:layout_constraintEnd_toEndOf="@id/kestrel"
+        app:layout_constraintHeight_percent="0.02"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toEndOf="@id/measurementIcon3"
+        app:layout_constraintTop_toTopOf="@id/kestrel"
+        app:layout_constraintVertical_bias="0.54"
+        app:layout_constraintWidth_percent="0.06" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

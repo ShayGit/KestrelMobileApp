@@ -8,7 +8,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.ViewCompat;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,13 +59,13 @@ public class MainActivity extends AppCompatActivity {
     private void changeFrontBackImage() {
         if (isFront) {
             td.startTransition(500);
-            kestrelLogic.disableKestrelButtons();
+            kestrelLogic.invisibleKestrelButtons();
             kestrelLogic.fadeOutKestrelMeasurementViews();
             frontBackButton.setText(R.string.back_Button);
         } else {
             td.reverseTransition(500);
             kestrelLogic.fadeInKestrelMeasurementViews();
-            kestrelLogic.enableKestrelButtons();
+            kestrelLogic.visibleKestrelButtons();
             frontBackButton.setText(R.string.front_button);
         }
         isFront = !isFront;
