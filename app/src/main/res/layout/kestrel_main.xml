@@ -8,6 +8,21 @@
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/kestrelfan"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toBottomOf="@id/kestrel"
+        app:layout_constraintEnd_toEndOf="@id/kestrel"
+        app:layout_constraintHeight_percent="0.2"
+        app:layout_constraintHorizontal_bias="0.58"
+        app:layout_constraintVertical_bias="0.09"
+        app:layout_constraintStart_toStartOf="@id/kestrel"
+        app:layout_constraintTop_toTopOf="@id/kestrel"
+        app:layout_constraintWidth_percent="0.55"
+        app:srcCompat="@drawable/kestrelfan" />
+
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/kestrel"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -16,7 +31,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/kestrelfront" />
+        app:srcCompat="@drawable/kestrelfrontnofan" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/powerButton"
@@ -96,12 +111,12 @@
         android:gravity="center"
         app:layout_constraintBottom_toBottomOf="@id/kestrel"
         app:layout_constraintEnd_toEndOf="@id/kestrel"
-        app:layout_constraintHeight_percent="0.02"
-        app:layout_constraintHorizontal_bias="0.3"
+        app:layout_constraintHeight_percent="0.03"
+        app:layout_constraintHorizontal_bias="0.17"
         app:layout_constraintStart_toStartOf="@id/kestrel"
         app:layout_constraintTop_toTopOf="@id/kestrel"
         app:layout_constraintVertical_bias="0.54"
-        app:layout_constraintWidth_percent="0.03" />
+        app:layout_constraintWidth_percent="0.04" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/measurementIcon2"
@@ -109,43 +124,61 @@
         android:layout_height="0dp"
         android:layout_margin="0dp"
         android:gravity="center"
+        android:layout_marginStart="3dp"
         app:layout_constraintBottom_toBottomOf="@id/kestrel"
         app:layout_constraintEnd_toStartOf="@id/kestrel"
-        app:layout_constraintHeight_percent="0.02"
+        app:layout_constraintHeight_percent="0.03"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/measurementIcon1"
         app:layout_constraintTop_toTopOf="@id/kestrel"
         app:layout_constraintVertical_bias="0.54"
-        app:layout_constraintWidth_percent="0.03" />
+        app:layout_constraintWidth_percent="0.04" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/measurementIcon3"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center"
+        android:layout_marginStart="3dp"
         app:layout_constraintBottom_toBottomOf="@id/kestrel"
         app:layout_constraintEnd_toEndOf="@id/kestrel"
-        app:layout_constraintHeight_percent="0.02"
+        app:layout_constraintHeight_percent="0.03"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/measurementIcon2"
         app:layout_constraintTop_toTopOf="@id/kestrel"
         app:layout_constraintVertical_bias="0.54"
-        app:layout_constraintWidth_percent="0.03" />
+        app:layout_constraintWidth_percent="0.04" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/measurementIcon4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:layout_marginStart="3dp"
+        app:layout_constraintBottom_toBottomOf="@id/kestrel"
+        app:layout_constraintEnd_toEndOf="@id/kestrel"
+        app:layout_constraintHeight_percent="0.03"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/measurementIcon3"
+        app:layout_constraintTop_toTopOf="@id/kestrel"
+        app:layout_constraintVertical_bias="0.54"
+        app:layout_constraintWidth_percent="0.04" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/measurementIconText"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center"
+        android:layout_marginStart="3dp"
         app:layout_constraintBottom_toBottomOf="@id/kestrel"
         app:layout_constraintEnd_toEndOf="@id/kestrel"
-        app:layout_constraintHeight_percent="0.02"
+        app:layout_constraintHeight_percent="0.03"
         android:textStyle="bold"
-        app:layout_constraintHorizontal_bias="0.2"
-        app:layout_constraintStart_toEndOf="@id/measurementIcon3"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/measurementIcon4"
         app:layout_constraintTop_toTopOf="@id/kestrel"
-        app:layout_constraintVertical_bias="0.54"
-        app:layout_constraintWidth_percent="0.06" />
+        app:layout_constraintVertical_bias="0.539"
+        app:layout_constraintWidth_percent="0.08" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

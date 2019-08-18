@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         frontBackButton = findViewById(R.id.frontBackButton);
          kestrelImage= findViewById(R.id.kestrel);
         td = new TransitionDrawable(new Drawable[]{
-                getResources().getDrawable(R.drawable.kestrelfront),
+                getResources().getDrawable(R.drawable.kestrelfrontnofan),
                 getResources().getDrawable(R.drawable.kestrelback)
         });
         td.setCrossFadeEnabled(true);

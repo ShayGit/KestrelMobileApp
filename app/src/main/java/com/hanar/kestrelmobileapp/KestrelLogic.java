@@ -5,10 +5,9 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
 import com.google.android.material.button.MaterialButton;
@@ -25,7 +24,7 @@ public class KestrelLogic {
     private MaterialButton powerButton, rightButton, leftButton;
     private eKestrelMeasurement eKestrelMeasurementScreen;
     private MaterialTextView measurementTextView,measurementIconText;
-    private ImageView measurementIcon1, measurementIcon2, measurementIcon3;
+    private ImageView measurementIcon1, measurementIcon2, measurementIcon3,measurementIcon4, kestrelFan;
     private boolean isPowerOn;
     private WeatherData weatherData;
     private ValueAnimator valueAnimator1, valueAnimator2;
@@ -41,12 +40,29 @@ public class KestrelLogic {
         measurementIcon1 = activity.findViewById(R.id.measurementIcon1);
         measurementIcon2 = activity.findViewById(R.id.measurementIcon2);
         measurementIcon3 = activity.findViewById(R.id.measurementIcon3);
+        measurementIcon4 = activity.findViewById(R.id.measurementIcon4);
         measurementIconText = activity.findViewById(R.id.measurementIconText);
+        measurementIcon1.setImageResource(R.drawable.ic_windicon);
+        measurementIcon2.setImageResource(R.drawable.ic_dropicon);
+        measurementIcon3.setImageResource(R.drawable.ic_percentageicon);
+        measurementIcon4.setImageResource(R.drawable.ic_temperatureicon);
+        invisibleKestrelMeasurementViews();
+        kestrelFan = activity.findViewById(R.id.kestrelfan);
+
 
         weatherData = null;
         isPowerOn = false;
-        eKestrelMeasurementScreen = eKestrelMeasurement.Temperature;
+        eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
         locationHandling.uiListener = (this::updateUiWeatherData);
+        RotateAnimation rotate = new RotateAnimation(
+                0, 360,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f
+        );
+        rotate.setRepeatCount(Animation.INFINITE);
+        rotate.setRepeatMode(Animation.RESTART);
+        rotate.setDuration(900);
+        kestrelFan.startAnimation(rotate);
 
         powerButton.setOnClickListener((v) -> onPowerButtonClicked());
         /*powerButton.setOnTouchListener((v, event) -> {
@@ -76,21 +92,20 @@ public class KestrelLogic {
         });*/
         rightButton.setOnClickListener((v ->
         {
-            if (eKestrelMeasurementScreen != eKestrelMeasurement.DiscomfortIndex) {
                 eKestrelMeasurementScreen = eKestrelMeasurementScreen.next();
                 setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
-            }
         }));
         leftButton.setOnClickListener((v ->
         {
-            if (eKestrelMeasurementScreen != eKestrelMeasurement.Temperature) {
                 eKestrelMeasurementScreen = eKestrelMeasurementScreen.previous();
                 setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
-            }
         }));
         disableKestrelButtonsWithoutPower();
 
-        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(measurementIconText,1,8,1, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+
+
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(measurementIconText,5,12,1, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+        measurementIconText.setTextColor(Color.BLACK);
         setMeasurementFont();
         initializeAnimationViews();
 
@@ -115,6 +130,7 @@ public class KestrelLogic {
                 measurementIcon1.setAlpha(alpha);
                 measurementIcon2.setAlpha(alpha);
                 measurementIcon3.setAlpha(alpha);
+                measurementIcon4.setAlpha(alpha);
                 measurementIconText.setAlpha(alpha);
 
             }
@@ -130,6 +146,7 @@ public class KestrelLogic {
                 measurementIcon1.setAlpha(alpha);
                 measurementIcon2.setAlpha(alpha);
                 measurementIcon3.setAlpha(alpha);
+                measurementIcon4.setAlpha(alpha);
                 measurementIconText.setAlpha(alpha);
 
             }
@@ -140,6 +157,8 @@ public class KestrelLogic {
         if (!isPowerOn) {
             isPowerOn = !isPowerOn;
             locationHandling.locationRequestOnKestrelStart();
+
+            kestrelFan.getAnimation().startNow();
         }
         else
         {
@@ -152,7 +171,8 @@ public class KestrelLogic {
             isPowerOn = !isPowerOn;
             disableKestrelButtonsWithoutPower();
             invisibleKestrelMeasurementViews();
-            eKestrelMeasurementScreen = eKestrelMeasurement.Temperature;
+            //eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
+            //kestrelFan.getAnimation().startNow();
         }
     }
 
@@ -187,8 +207,8 @@ public class KestrelLogic {
         switch (eKestrelMeasurementInstance) {
             case Temperature:
                 measurementTextView.setText(Float.toString(weatherData.getTemperature()));
-                measurementIcon1.setImageResource(R.drawable.ic_temperatureicon);
-                measurementIcon1.setVisibility(View.VISIBLE);
+                measurementIcon4.setVisibility(View.VISIBLE);
+                measurementIcon1.setVisibility(View.INVISIBLE);
                 measurementIcon2.setVisibility(View.INVISIBLE);
                 measurementIcon3.setVisibility(View.INVISIBLE);
                 measurementIconText.setVisibility(View.VISIBLE);
@@ -196,41 +216,39 @@ public class KestrelLogic {
                 break;
             case WindSpeed:
                 measurementTextView.setText(Float.toString(weatherData.getWindSpeed()));
-                measurementIcon1.setImageResource(R.drawable.ic_windicon);
                 measurementIcon1.setVisibility(View.VISIBLE);
                 measurementIcon2.setVisibility(View.INVISIBLE);
                 measurementIcon3.setVisibility(View.INVISIBLE);
+                measurementIcon4.setVisibility(View.INVISIBLE);
                 measurementIconText.setVisibility(View.VISIBLE);
-                measurementIconText.setText("M/S");
+                measurementIconText.setText("m/s");
                 break;
             case Humidity:
                 measurementTextView.setText(Integer.toString(weatherData.getHumidity()));
-                measurementIcon1.setImageResource(R.drawable.ic_dropicon);
-                measurementIcon2.setImageResource(R.drawable.ic_percentageicon);
-                measurementIcon1.setVisibility(View.VISIBLE);
+                measurementIcon1.setVisibility(View.INVISIBLE);
                 measurementIcon2.setVisibility(View.VISIBLE);
-                measurementIcon3.setVisibility(View.INVISIBLE);
+                measurementIcon3.setVisibility(View.VISIBLE);
+                measurementIcon4.setVisibility(View.INVISIBLE);
                 measurementIconText.setVisibility(View.VISIBLE);
                 measurementIconText.setVisibility(View.INVISIBLE);
                 break;
             case WindChill:
                 measurementTextView.setText(Float.toString(weatherData.getWindChill()));
-                measurementIcon1.setImageResource(R.drawable.ic_windicon);
-                measurementIcon2.setImageResource(R.drawable.ic_temperatureicon);
                 measurementIcon1.setVisibility(View.VISIBLE);
-                measurementIcon2.setVisibility(View.VISIBLE);
+                measurementIcon2.setVisibility(View.INVISIBLE);
                 measurementIcon3.setVisibility(View.INVISIBLE);
-                measurementIconText.setVisibility(View.INVISIBLE);
+                measurementIcon4.setVisibility(View.VISIBLE);
+                measurementIconText.setVisibility(View.VISIBLE);
+                measurementIconText.setText("°C");
                 break;
             case DiscomfortIndex:
                 measurementTextView.setText(Float.toString(weatherData.getDiscomfortIndex()));
-                measurementIcon1.setImageResource(R.drawable.ic_dropicon);
-                measurementIcon2.setImageResource(R.drawable.ic_percentageicon);
-                measurementIcon3.setImageResource(R.drawable.ic_temperatureicon);
-                measurementIcon1.setVisibility(View.VISIBLE);
+                measurementIcon1.setVisibility(View.INVISIBLE);
                 measurementIcon2.setVisibility(View.VISIBLE);
                 measurementIcon3.setVisibility(View.VISIBLE);
-                measurementIconText.setVisibility(View.INVISIBLE);
+                measurementIcon4.setVisibility(View.VISIBLE);
+                measurementIconText.setVisibility(View.VISIBLE);
+                measurementIconText.setText("°C");
                 break;
         }
         measurementTextView.setVisibility(View.VISIBLE);
@@ -241,8 +259,8 @@ public class KestrelLogic {
         measurementIcon1.setVisibility(View.INVISIBLE);
         measurementIcon2.setVisibility(View.INVISIBLE);
         measurementIcon3.setVisibility(View.INVISIBLE);
-
-
+        measurementIcon4.setVisibility(View.INVISIBLE);
+        measurementIconText.setVisibility(View.INVISIBLE);
     }
 
     private void visibleKestrelMeasurementViews() {
@@ -250,7 +268,6 @@ public class KestrelLogic {
         measurementIcon1.setVisibility(View.VISIBLE);
         measurementIcon2.setVisibility(View.VISIBLE);
         measurementIcon3.setVisibility(View.VISIBLE);
-
     }
 
     void fadeOutKestrelMeasurementViews() {
@@ -258,7 +275,6 @@ public class KestrelLogic {
             valueAnimator1.cancel();
         }
         valueAnimator2.start();
-
     }
 
     void fadeInKestrelMeasurementViews() {
@@ -272,7 +288,7 @@ public class KestrelLogic {
         if (inWeatherData != null) {
             weatherData = inWeatherData;
 
-            setKestrelMeasurementViewAndIcons(eKestrelMeasurement.Temperature);
+            setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
             enableKestrelButtonsWithoutPower();
            /* final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
             builder.setMessage(weatherData.toString())

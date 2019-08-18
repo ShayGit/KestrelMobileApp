@@ -1,21 +1,23 @@
 package com.hanar.kestrelmobileapp;
 
 enum eKestrelMeasurement {
-    Temperature(0),
-    WindSpeed(1),
-    Humidity(2),
-    WindChill(3),
+    WindSpeed(0),
+    Temperature(1),
+    WindChill(2),
+    Humidity(3),
     DiscomfortIndex(4);
 
 
     public final int valueId;
+    private static eKestrelMeasurement[] vals = values();
+
     public eKestrelMeasurement next() {
         // No bounds checking required here, because the last instance overrides
-        return values()[ordinal() + 1];
+            return vals[(this.ordinal()+1) % vals.length];
     }
     public eKestrelMeasurement previous() {
         // No bounds checking required here, because the last instance overrides
-        return values()[ordinal() - 1];
+        return vals[ordinal() > 0 ? ordinal()  - 1 : 4];
     }
 
     private eKestrelMeasurement(int id) {
