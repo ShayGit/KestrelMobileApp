@@ -1,20 +1,28 @@
 package com.hanar.kestrelmobileapp;
 
 
+
+
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.ImageView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.hanar.openweathermap.WeatherData;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.widget.TextViewCompat;
 
 
@@ -24,13 +32,20 @@ public class KestrelLogic {
     private MaterialButton powerButton, rightButton, leftButton;
     private eKestrelMeasurement eKestrelMeasurementScreen;
     private MaterialTextView measurementTextView,measurementIconText;
-    private ImageView measurementIcon1, measurementIcon2, measurementIcon3,measurementIcon4, kestrelFan;
+    private AppCompatImageView measurementIcon1, measurementIcon2, measurementIcon3,measurementIcon4, kestrelFan;
     private boolean isPowerOn;
     private WeatherData weatherData;
     private ValueAnimator valueAnimator1, valueAnimator2;
     private long down, up;
+    private TransitionDrawable td;
+    private MaterialButton frontBackButton;
+    private ConstraintLayout kestrelLayout;
+    private RotateAnimation rotate;
 
-    public KestrelLogic(AppCompatActivity aca) {
+
+
+
+    public KestrelLogic(AppCompatActivity aca,MaterialButton fbb) {
         activity = aca;
         locationHandling = new LocationHandling(activity);
         powerButton = activity.findViewById(R.id.powerButton);
@@ -48,21 +63,33 @@ public class KestrelLogic {
         measurementIcon4.setImageResource(R.drawable.ic_temperatureicon);
         invisibleKestrelMeasurementViews();
         kestrelFan = activity.findViewById(R.id.kestrelfan);
+        kestrelLayout = activity.findViewById(R.id.kestrelayout);
+
+        frontBackButton = fbb;
 
 
         weatherData = null;
         isPowerOn = false;
         eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
         locationHandling.uiListener = (this::updateUiWeatherData);
-        RotateAnimation rotate = new RotateAnimation(
+         rotate = new RotateAnimation(
                 0, 360,
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f
         );
         rotate.setRepeatCount(Animation.INFINITE);
         rotate.setRepeatMode(Animation.RESTART);
+        rotate.setInterpolator(new LinearInterpolator());
         rotate.setDuration(900);
-        kestrelFan.startAnimation(rotate);
+        activity.runOnUiThread(() -> kestrelFan.startAnimation(rotate));
+
+
+        td = new TransitionDrawable(new Drawable[]{
+                activity.getResources().getDrawable(R.drawable.kestrelfan),
+                activity.getResources().getDrawable(R.drawable.kestrelfan)
+        });
+        td.setCrossFadeEnabled(true);
+        kestrelFan.setImageDrawable(td);
 
         powerButton.setOnClickListener((v) -> onPowerButtonClicked());
         /*powerButton.setOnTouchListener((v, event) -> {
@@ -119,6 +146,28 @@ public class KestrelLogic {
         measurementTextView.setTextColor(Color.BLACK);
     }
 
+    public void onFrontDisplayFan(boolean isFront)
+    {
+        if(isFront)
+        {
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(kestrelLayout);
+            constraintSet.setVerticalBias(R.id.kestrelfan,0.09f);
+            constraintSet.setHorizontalBias(R.id.kestrelfan,0.58f);
+            constraintSet.applyTo(kestrelLayout);
+            td.reverseTransition(1000);
+        }
+        else
+        {
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(kestrelLayout);
+            constraintSet.setVerticalBias(R.id.kestrelfan,0.083f);
+            constraintSet.setHorizontalBias(R.id.kestrelfan,0.43f);
+            constraintSet.applyTo(kestrelLayout);
+            td.startTransition(1000);
+        }
+    }
+
     private void initializeAnimationViews() {
         valueAnimator1 = ValueAnimator.ofFloat(0f, 1f);
         valueAnimator1.setDuration(1000);
@@ -156,9 +205,11 @@ public class KestrelLogic {
     private void onPowerButtonClicked() {
         if (!isPowerOn) {
             isPowerOn = !isPowerOn;
+            frontBackButton.setEnabled(false);
             locationHandling.locationRequestOnKestrelStart();
 
-            kestrelFan.getAnimation().startNow();
+
+            //kestrelFan.startAnimation(rotate);
         }
         else
         {
@@ -171,6 +222,7 @@ public class KestrelLogic {
             isPowerOn = !isPowerOn;
             disableKestrelButtonsWithoutPower();
             invisibleKestrelMeasurementViews();
+            //kestrelFan.clearAnimation();
             //eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
             //kestrelFan.getAnimation().startNow();
         }
@@ -290,6 +342,14 @@ public class KestrelLogic {
 
             setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
             enableKestrelButtonsWithoutPower();
+            if(weatherData.getWindSpeed()==0)
+            {
+                kestrelFan.clearAnimation();
+            }
+            else
+            {
+                kestrelFan.startAnimation(rotate);
+            }
            /* final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
             builder.setMessage(weatherData.toString())
                     .setCancelable(false)
@@ -299,6 +359,8 @@ public class KestrelLogic {
         } else if (locationHandling.getIsLocationOrNetworkDisabled()) {
             setIsPowerOn(false);
         }
+        frontBackButton.setEnabled(true);
+
     }
 
     public LocationHandling GetLocationHandling() {
@@ -311,5 +373,10 @@ public class KestrelLogic {
 
     private boolean getIsPowerOn() {
         return this.isPowerOn;
+    }
+
+    private void onFrontDisplay(boolean isFront)
+    {
+
     }
 }

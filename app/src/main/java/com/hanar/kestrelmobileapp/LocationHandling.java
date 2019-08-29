@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -73,7 +74,8 @@ public class LocationHandling {
             // Permission is not granted
             // Should we show an explanation?
             if (!isRandomValues) {
-                new MaterialAlertDialogBuilder(activity).
+
+                    new MaterialAlertDialogBuilder(activity).
                         setCancelable(false)
                         .setMessage("האפליקציה מעוניינת להשתמש במיקומך האחרון על מנת שהקסטרל יציג נתונים על פי מיקומך, במידה ואינך מעוניינ/ת בכך, הקסטרל יציג נתונים אקראיים")
                         .setPositiveButton("הבנתי", (dialog, which) -> {
@@ -81,14 +83,15 @@ public class LocationHandling {
                                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET},
                                     MY_PERMISSIONS_REQUEST_LOCATION);
                         }).setNegativeButton("לא מעוניינ/ת", (dialog, which) -> {
-                    setUiRandomValues();
-                }).create()
+                            setUiRandomValues();
+                        }).create()
                         .show();
+
             } else {
                 setUiRandomValues();
             }
         } else {
-            Toast.makeText(activity, "Permission granted", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(activity, "Permission granted", Toast.LENGTH_SHORT).show();
             // locationAndInternetCheck();
             if (isRandomValues) {
                 setUiRandomValues();
@@ -110,6 +113,10 @@ public class LocationHandling {
         if (weatherData.getTemperature() <= 10 && weatherData.getWindSpeed() > 1.3) {
             weatherData.setWindChill(JSONWeatherParser.getWindChillByFormula(weatherData.getTemperature(), weatherData.getWindSpeed()));
         }
+        else
+        {
+            weatherData.setWindChill(weatherData.getTemperature());
+        }
         weatherData.setDiscomfortIndex(JSONWeatherParser.getDiscomfortIndexByFormula(weatherData.getTemperature(),weatherData.getHumidity()));
         uiListener.onUpdateUI(weatherData);
 
@@ -117,97 +124,106 @@ public class LocationHandling {
 
     @SuppressLint("MissingPermission")
     private void getLocationAndUpdateUI() {
-        fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            boolean uiUpdated = false;
+        AsyncTask.execute(()->{
+            fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                boolean uiUpdated = false;
 
-            @Override
-            public void onSuccess(Location location) {
-                if (location == null) {
-                    pB.setVisibility(View.VISIBLE);
-                    locationRequest = LocationRequest.create();
-                    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    locationRequest.setInterval(5 * 1000);
-                    locationRequest.setNumUpdates(1);
-                    locationRequest.setMaxWaitTime(20 * 1000);
-                    locationCallback = new LocationCallback() {
-                        @Override
-                        public void onLocationResult(LocationResult locationResult) {
-                            if (locationResult == null) {
+                @Override
+                public void onSuccess(Location location) {
+                    if (location == null) {
+                        activity.runOnUiThread(() ->
+                            pB.setVisibility(View.VISIBLE));
+                        locationRequest = LocationRequest.create();
+                        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                        locationRequest.setInterval(5 * 1000);
+                        locationRequest.setNumUpdates(1);
+                        locationRequest.setMaxWaitTime(20 * 1000);
+                        locationCallback = new LocationCallback() {
+                            @Override
+                            public void onLocationResult(LocationResult locationResult) {
+                                if (locationResult == null) {
+                                    if (fusedLocationClient != null && uiUpdated) {
+                                        fusedLocationClient.removeLocationUpdates(this);
+                                    }
+                                    return;
+                                }
+                                for (Location location : locationResult.getLocations()) {
+                                    if (location != null) {
+                                        if (!uiUpdated) {
+                                            Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
+                                            retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
+                                            updateKestrelUI();
+                                            uiUpdated = true;
+                                        }
+                                        break;
+                                    }
+                                }
                                 if (fusedLocationClient != null && uiUpdated) {
                                     fusedLocationClient.removeLocationUpdates(this);
                                 }
-                                return;
+                                Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
                             }
-                            for (Location location : locationResult.getLocations()) {
-                                if (location != null) {
+
+                            @Override
+                            public void onLocationAvailability(LocationAvailability locationAvailability) {
+                                if (!locationAvailability.isLocationAvailable()) {
+                                    pB.setVisibility(View.INVISIBLE);
+                                    //Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
                                     if (!uiUpdated) {
-                                        Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
-                                        retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
-                                        updateKestrelUI();
+                                        if (longtitude == 0.0 && latitude == 0.0) {
+                                            isLocationEnabled();
+                                        } else {
+                                            retrieveWeatherByLocation(longtitude, latitude);
+                                            updateKestrelUI();
+                                        }
                                         uiUpdated = true;
                                     }
-                                    break;
                                 }
                             }
-                            if (fusedLocationClient != null && uiUpdated) {
-                                fusedLocationClient.removeLocationUpdates(this);
-                            }
-                            Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onLocationAvailability(LocationAvailability locationAvailability) {
-                            if (!locationAvailability.isLocationAvailable()) {
-                                pB.setVisibility(View.INVISIBLE);
-                                //Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
-                                if (!uiUpdated) {
-                                    if (longtitude == 0.0 && latitude == 0.0) {
-                                        isLocationEnabled();
-                                    } else {
-                                        retrieveWeatherByLocation(longtitude, latitude);
-                                        updateKestrelUI();
-                                    }
-                                    uiUpdated = true;
-                                }
-                            }
-                        }
-                    };
-                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-                } else {
-                    Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
-                    retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
-                    updateKestrelUI();
-                }
-            }
-        }).addOnFailureListener(activity, new OnFailureListener() {
-            boolean uiUpdated = false;
-
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                if (e instanceof ResolvableApiException) {
-                    // Location settings are not satisfied, but this can be fixed
-                    // by showing the user a dialog.
-                    // try {
-                    // Show the dialog by calling startResolutionForResult(),
-                    // and check the result in onActivityResult().
-                    if (!uiUpdated) {
-                        if (longtitude == 0.0 && latitude == 0.0) {
-                            // ResolvableApiException resolvable = (ResolvableApiException) e;
-                            // resolvable.startResolutionForResult(MainActivity.this,
-                            //       REQUEST_CHECK_SETTINGS);
-                            isLocationEnabled();
-                        } else {
-                            retrieveWeatherByLocation(longtitude, latitude);
-                            updateKestrelUI();
-                        }
-                        uiUpdated = true;
+                        };
+                        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                    } else {
+                        //Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
+                        activity.runOnUiThread(() -> {
+                        retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
+                        updateKestrelUI();
+                        });
                     }
-                    //   } catch (IntentSender.SendIntentException sendEx) {
-                    // Ignore the error.
-                    //  }
                 }
-            }
+            }).addOnFailureListener(activity, new OnFailureListener() {
+                boolean uiUpdated = false;
+
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    if (e instanceof ResolvableApiException) {
+                        // Location settings are not satisfied, but this can be fixed
+                        // by showing the user a dialog.
+                        // try {
+                        // Show the dialog by calling startResolutionForResult(),
+                        // and check the result in onActivityResult().
+                        if (!uiUpdated) {
+                            if (longtitude == 0.0 && latitude == 0.0) {
+                                // ResolvableApiException resolvable = (ResolvableApiException) e;
+                                // resolvable.startResolutionForResult(MainActivity.this,
+                                //       REQUEST_CHECK_SETTINGS);
+                                activity.runOnUiThread(() ->
+                                    isLocationEnabled());
+                            } else {
+                                activity.runOnUiThread(() -> {
+                                    retrieveWeatherByLocation(longtitude, latitude);
+                                    updateKestrelUI();
+                                });
+                            }
+                            uiUpdated = true;
+                        }
+                        //   } catch (IntentSender.SendIntentException sendEx) {
+                        // Ignore the error.
+                        //  }
+                    }
+                }
+            });
         });
+
     }
 
     private void isLocationEnabled() {

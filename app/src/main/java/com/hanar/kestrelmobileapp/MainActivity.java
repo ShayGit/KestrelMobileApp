@@ -24,12 +24,13 @@ public class MainActivity extends AppCompatActivity {
     ImageView kestrelImage;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initialize();
-      kestrelLogic = new KestrelLogic(this);
+      kestrelLogic = new KestrelLogic(this,frontBackButton);
 
     }
 
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
          kestrelImage= findViewById(R.id.kestrel);
         td = new TransitionDrawable(new Drawable[]{
                 getResources().getDrawable(R.drawable.kestrelfrontnofan),
-                getResources().getDrawable(R.drawable.kestrelback)
+                getResources().getDrawable(R.drawable.kestrelbacknofan)
         });
         td.setCrossFadeEnabled(true);
         kestrelImage.setImageDrawable(td);
@@ -61,12 +62,16 @@ public class MainActivity extends AppCompatActivity {
             td.startTransition(500);
             kestrelLogic.invisibleKestrelButtons();
             kestrelLogic.fadeOutKestrelMeasurementViews();
+            kestrelLogic.onFrontDisplayFan(false);
             frontBackButton.setText(R.string.back_Button);
+
         } else {
             td.reverseTransition(500);
             kestrelLogic.fadeInKestrelMeasurementViews();
             kestrelLogic.visibleKestrelButtons();
+            kestrelLogic.onFrontDisplayFan(true);
             frontBackButton.setText(R.string.front_button);
+
         }
         isFront = !isFront;
     }
@@ -93,4 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

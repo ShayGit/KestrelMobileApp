@@ -28,7 +28,7 @@
                 app:layout_constraintVertical_bias="0.0" />
 
             <include
-                android:id="@+id/include"
+                android:id="@+id/kestrelayout"
                 layout="@layout/kestrel_main"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"

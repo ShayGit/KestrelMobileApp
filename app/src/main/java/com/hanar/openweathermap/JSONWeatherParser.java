@@ -33,6 +33,10 @@ public class JSONWeatherParser {
             {
                 weatherData.setWindChill(getWindChillByFormula(weatherData.getTemperature(),weatherData.getWindSpeed()));
             }
+            else
+            {
+                weatherData.setWindChill(weatherData.getTemperature());
+            }
             weatherData.setDiscomfortIndex(getDiscomfortIndexByFormula(weatherData.getTemperature(),weatherData.getHumidity()));
 
 
