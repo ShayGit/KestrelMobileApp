@@ -7,11 +7,16 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
+
 import com.google.android.material.button.MaterialButton;
 
 @SuppressLint("ClickableViewAccessibility")
@@ -31,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initialize();
       kestrelLogic = new KestrelLogic(this,frontBackButton);
+        CoordinatorLayout coordinatorlayout = findViewById(R.id.appmainlayout);
+        coordinatorlayout.getBackground().setAlpha(190);
 
     }
 
@@ -80,6 +87,24 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem item = (MenuItem) menu.findItem(R.id.action_settings);
+        item.setActionView(R.layout.switch_layout);
+        SwitchCompat switchAB = item
+                .getActionView().findViewById(R.id.switchAB);
+        switchAB.setChecked(false);
+
+        switchAB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+                if (isChecked) {
+
+                } else {
+
+                }
+            }
+        });
         return true;
     }
 

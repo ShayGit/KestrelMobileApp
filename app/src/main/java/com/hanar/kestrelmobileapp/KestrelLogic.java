@@ -131,7 +131,7 @@ public class KestrelLogic {
 
 
 
-        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(measurementIconText,5,12,1, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(measurementIconText,1,12,1, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
         measurementIconText.setTextColor(Color.BLACK);
         setMeasurementFont();
         initializeAnimationViews();

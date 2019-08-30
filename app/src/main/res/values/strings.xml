@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">KestrelMobileApp</string>
+    <string name="app_name">Kestrel Meter</string>
     <string name="action_settings">קבל נתונים על פי המיקום</string>
     <string name="user_guide_button">מדריך השימוש</string>
     <string name="front_button">תצוגה קידמית</string>
