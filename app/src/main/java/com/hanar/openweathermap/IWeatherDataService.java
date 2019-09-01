@@ -1,9 +1,6 @@
 
 package com.hanar.openweathermap;
 
-
-import androidx.appcompat.app.AppCompatActivity;
-
 /**
  * The Interface IWeatherDataService.
  * An Interface for the developers.

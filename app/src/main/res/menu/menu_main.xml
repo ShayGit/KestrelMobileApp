@@ -1,12 +1,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layoutDirection="rtl"
+    android:layout_gravity="end"
     tools:context="com.hanar.kestrelmobileapp.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:id="@+id/location_setting"
+        android:layout_gravity="end"
+        android:checkable="true"
+        android:gravity="end"
         android:title="@string/action_settings"
-        app:showAsAction="never"
-        android:actionLayout="@layout/switch_layout"
-        app:actionViewClass="androidx.appcompat.widget.SwitchCompat" />
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/user_guide"
+        android:title="@string/user_guide"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/privacy_agreement"
+        android:orderInCategory="100"
+        android:title="@string/privacy_agreement"
+        app:showAsAction="never" />
 </menu>

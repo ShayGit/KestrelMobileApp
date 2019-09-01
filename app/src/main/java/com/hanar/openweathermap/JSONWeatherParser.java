@@ -5,7 +5,6 @@ import org.json.JSONObject;
 import java.lang.Math;
 
 import java.math.BigDecimal;
-import java.net.URL;
 
 public class JSONWeatherParser {
     /**

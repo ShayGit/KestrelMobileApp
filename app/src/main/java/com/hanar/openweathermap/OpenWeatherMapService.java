@@ -1,22 +1,7 @@
 
 package com.hanar.openweathermap;
-
-import android.util.JsonReader;
-import android.widget.Toast;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
-import org.json.*;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.xml.parsers.*;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 
 /**

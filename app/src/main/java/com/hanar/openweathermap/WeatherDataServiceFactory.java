@@ -2,11 +2,6 @@
 package com.hanar.openweathermap;
 
 
-
-
-import com.hanar.openweathermap.IWeatherDataService;
-import com.hanar.openweathermap.OpenWeatherMapService;
-
 /**
  * A factory for creating WeatherDataService objects.
  * 

@@ -1,15 +1,13 @@
 package com.hanar.kestrelmobileapp;
 
 
-
-
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.os.AsyncTask;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -36,16 +34,16 @@ public class KestrelLogic {
     private boolean isPowerOn;
     private WeatherData weatherData;
     private ValueAnimator valueAnimator1, valueAnimator2;
-    private long down, up;
     private TransitionDrawable td;
     private MaterialButton frontBackButton;
     private ConstraintLayout kestrelLayout;
     private RotateAnimation rotate;
+    private MenuItem locationSettingItem;
 
 
 
 
-    public KestrelLogic(AppCompatActivity aca,MaterialButton fbb) {
+     KestrelLogic(AppCompatActivity aca, MaterialButton fbb) {
         activity = aca;
         locationHandling = new LocationHandling(activity);
         powerButton = activity.findViewById(R.id.powerButton);
@@ -64,7 +62,6 @@ public class KestrelLogic {
         invisibleKestrelMeasurementViews();
         kestrelFan = activity.findViewById(R.id.kestrelfan);
         kestrelLayout = activity.findViewById(R.id.kestrelayout);
-
         frontBackButton = fbb;
 
 
@@ -146,7 +143,7 @@ public class KestrelLogic {
         measurementTextView.setTextColor(Color.BLACK);
     }
 
-    public void onFrontDisplayFan(boolean isFront)
+     void onFrontDisplayFan(boolean isFront)
     {
         if(isFront)
         {
@@ -171,34 +168,28 @@ public class KestrelLogic {
     private void initializeAnimationViews() {
         valueAnimator1 = ValueAnimator.ofFloat(0f, 1f);
         valueAnimator1.setDuration(1000);
-        valueAnimator1.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float alpha = (float) animation.getAnimatedValue();
-                measurementTextView.setAlpha(alpha);
-                measurementIcon1.setAlpha(alpha);
-                measurementIcon2.setAlpha(alpha);
-                measurementIcon3.setAlpha(alpha);
-                measurementIcon4.setAlpha(alpha);
-                measurementIconText.setAlpha(alpha);
+        valueAnimator1.addUpdateListener(animation -> {
+            float alpha = (float) animation.getAnimatedValue();
+            measurementTextView.setAlpha(alpha);
+            measurementIcon1.setAlpha(alpha);
+            measurementIcon2.setAlpha(alpha);
+            measurementIcon3.setAlpha(alpha);
+            measurementIcon4.setAlpha(alpha);
+            measurementIconText.setAlpha(alpha);
 
-            }
         });
 
         valueAnimator2 = ValueAnimator.ofFloat(1f, 0f);
         valueAnimator2.setDuration(250);
-        valueAnimator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float alpha = (float) animation.getAnimatedValue();
-                measurementTextView.setAlpha(alpha);
-                measurementIcon1.setAlpha(alpha);
-                measurementIcon2.setAlpha(alpha);
-                measurementIcon3.setAlpha(alpha);
-                measurementIcon4.setAlpha(alpha);
-                measurementIconText.setAlpha(alpha);
+        valueAnimator2.addUpdateListener(animation -> {
+            float alpha = (float) animation.getAnimatedValue();
+            measurementTextView.setAlpha(alpha);
+            measurementIcon1.setAlpha(alpha);
+            measurementIcon2.setAlpha(alpha);
+            measurementIcon3.setAlpha(alpha);
+            measurementIcon4.setAlpha(alpha);
+            measurementIconText.setAlpha(alpha);
 
-            }
         });
     }
 
@@ -207,6 +198,8 @@ public class KestrelLogic {
             isPowerOn = !isPowerOn;
             frontBackButton.setEnabled(false);
             locationHandling.locationRequestOnKestrelStart();
+            locationSettingItem.setChecked(!locationHandling.getIsRandomValues());
+
 
 
             //kestrelFan.startAnimation(rotate);
@@ -238,12 +231,12 @@ public class KestrelLogic {
         leftButton.setVisibility(View.VISIBLE);
     }
 
-    void enableKestrelButtonsWithoutPower() {
+    private void enableKestrelButtonsWithoutPower() {
         rightButton.setEnabled(true);
         leftButton.setEnabled(true);
     }
 
-    void disableKestrelButtonsWithoutPower() {
+    private void disableKestrelButtonsWithoutPower() {
         rightButton.setEnabled(false);
         leftButton.setEnabled(false);
     }
@@ -374,9 +367,10 @@ public class KestrelLogic {
     private boolean getIsPowerOn() {
         return this.isPowerOn;
     }
-
-    private void onFrontDisplay(boolean isFront)
-    {
-
+     void setLocationSettingItem(MenuItem locationSettingItem) {
+        this.locationSettingItem = locationSettingItem;
+    }
+     boolean getLocationSettingItemState() {
+        return locationSettingItem.isChecked();
     }
 }

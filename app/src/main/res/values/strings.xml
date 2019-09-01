@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Kestrel Meter</string>
     <string name="action_settings">קבל נתונים על פי המיקום</string>
+    <string name="privacy_agreement">מדיניות פרטיות</string>
+    <string name="user_guide">הוראות משתמש בעברית</string>
     <string name="user_guide_button">מדריך השימוש</string>
     <string name="front_button">תצוגה קידמית</string>
     <string name="back_Button">תצוגה אחורית</string>

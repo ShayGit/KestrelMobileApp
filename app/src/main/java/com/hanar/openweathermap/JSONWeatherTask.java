@@ -2,10 +2,6 @@ package com.hanar.openweathermap;
 
 import android.os.AsyncTask;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 
 import androidx.appcompat.app.AppCompatActivity;
 
