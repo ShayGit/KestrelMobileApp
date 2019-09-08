@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         initialize();
         kestrelLogic = new KestrelLogic(this, frontBackButton);
         SharedPreferences settings = getApplicationContext().getSharedPreferences("mySettings", MODE_PRIVATE);
-        locationPref = settings.getBoolean("locationPref", false);
+        locationPref = settings.getBoolean("locationPref", true);
         CoordinatorLayout coordinatorlayout = findViewById(R.id.appmainlayout);
         coordinatorlayout.getBackground().setAlpha(190);
 

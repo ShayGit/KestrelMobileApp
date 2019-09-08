@@ -20,6 +20,6 @@ public interface IWeatherDataService {
 	 * @throws WeatherDataServiceException
 	 */
 
-	public abstract AsyncTaskResult getWeatherData(Double lon, Double lat)throws WeatherDataServiceException;
+	public abstract WeatherData getWeatherData(Double lon, Double lat)throws WeatherDataServiceException;
 }
 

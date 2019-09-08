@@ -1,4 +1,4 @@
-package com.hanar.openweathermap;
+package com.hanar.kestrelmobileapp;
 
 public class AsyncTaskResult<T> {
     private T result;

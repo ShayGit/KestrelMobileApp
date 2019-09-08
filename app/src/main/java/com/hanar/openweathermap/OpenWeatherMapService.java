@@ -1,7 +1,6 @@
 
 package com.hanar.openweathermap;
-import java.util.concurrent.ExecutionException;
-
+import com.hanar.kestrelmobileapp.AsyncTaskResult;
 
 
 /**
@@ -44,22 +43,24 @@ public class OpenWeatherMapService implements IWeatherDataService {
      * @throws WeatherDataServiceException - the service exception.
      */
 
-
     @Override
-    public AsyncTaskResult<WeatherData> getWeatherData(Double lon, Double lat) throws WeatherDataServiceException {
-        JSONWeatherTask task = new JSONWeatherTask();
+    public WeatherData getWeatherData(Double lon, Double lat) throws WeatherDataServiceException {
+
+        WeatherData weatherData = null;
+        String data;
         AsyncTaskResult<WeatherData> atr = null;
+
         try {
-             atr = task.execute(lon, lat).get();
-
-        } catch (ExecutionException e) {
-            throw new WeatherDataServiceException("Thread execution problem",e);
-        } catch (InterruptedException e) {
-            throw new WeatherDataServiceException("Thread execution problem",e);
+            data = WeatherHttpClient.getWeatherData(lon, lat);
+            if (data != null) {
+                weatherData = JSONWeatherParser.jsonWeatherParse(data);
+            }
+        } catch (WeatherDataServiceException e) {
+            throw  e;
         }
-
-        return atr;
+        return weatherData;
     }
+
 }
 
 

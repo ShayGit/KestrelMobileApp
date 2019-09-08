@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -39,6 +41,7 @@ public class KestrelLogic {
     private ConstraintLayout kestrelLayout;
     private RotateAnimation rotate;
     private MenuItem locationSettingItem;
+    private Handler handler;
 
 
 
@@ -63,6 +66,7 @@ public class KestrelLogic {
         kestrelFan = activity.findViewById(R.id.kestrelfan);
         kestrelLayout = activity.findViewById(R.id.kestrelayout);
         frontBackButton = fbb;
+        handler = new Handler(Looper.getMainLooper());
 
 
         weatherData = null;
@@ -89,6 +93,11 @@ public class KestrelLogic {
         kestrelFan.setImageDrawable(td);
 
         powerButton.setOnClickListener((v) -> onPowerButtonClicked());
+         powerButton.setOnLongClickListener((v) ->
+         {
+             onPowerButtonPressed3Sec();
+             return  true;
+         });
         /*powerButton.setOnTouchListener((v, event) -> {
             boolean isTurnedOffNow = false;
             switch (event.getAction()) {
@@ -201,23 +210,40 @@ public class KestrelLogic {
             locationSettingItem.setChecked(!locationHandling.getIsRandomValues());
 
 
-
-            //kestrelFan.startAnimation(rotate);
         }
         else
         {
-            onPowerButtonPressed3Sec();
+            int isExecuted = 0;
+            if(handler.hasMessages(isExecuted))
+            {
+                handler.removeCallbacksAndMessages(null);
+                //set background light off
+            }
+            else
+            {
+                //set background light on
+
+                handler.sendEmptyMessage(isExecuted);
+                handler.postDelayed(() -> {
+                    //set background light off
+                    handler.removeMessages(isExecuted);
+                }, 10000);
+            }
+
         }
     }
 
     private void onPowerButtonPressed3Sec() {
         if (isPowerOn) {
             isPowerOn = !isPowerOn;
+            handler.removeCallbacksAndMessages(null);
+            //set background light off
+
             disableKestrelButtonsWithoutPower();
             invisibleKestrelMeasurementViews();
-            //kestrelFan.clearAnimation();
-            //eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
-            //kestrelFan.getAnimation().startNow();
+            locationHandling.setProgressBar(false);
+            frontBackButton.setEnabled(true);
+
         }
     }
 
@@ -331,17 +357,16 @@ public class KestrelLogic {
 
     private void updateUiWeatherData(WeatherData inWeatherData) {
         if (inWeatherData != null) {
-            weatherData = inWeatherData;
+            if(isPowerOn) {
+                weatherData = inWeatherData;
 
-            setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
-            enableKestrelButtonsWithoutPower();
-            if(weatherData.getWindSpeed()==0)
-            {
-                kestrelFan.clearAnimation();
-            }
-            else
-            {
-                kestrelFan.startAnimation(rotate);
+                setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
+                enableKestrelButtonsWithoutPower();
+                if (weatherData.getWindSpeed() == 0) {
+                    kestrelFan.clearAnimation();
+                } else {
+                    kestrelFan.startAnimation(rotate);
+                }
             }
            /* final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
             builder.setMessage(weatherData.toString())
@@ -369,8 +394,11 @@ public class KestrelLogic {
     }
      void setLocationSettingItem(MenuItem locationSettingItem) {
         this.locationSettingItem = locationSettingItem;
+        locationHandling.setLocationSettingItem(locationSettingItem);
     }
      boolean getLocationSettingItemState() {
         return locationSettingItem.isChecked();
     }
+
+
 }
