@@ -6,4 +6,6 @@
     <string name="user_guide_button">מדריך השימוש</string>
     <string name="front_button">תצוגה קידמית</string>
     <string name="back_Button">תצוגה אחורית</string>
+    <string name="hold_text">Hold</string>
+
 </resources>

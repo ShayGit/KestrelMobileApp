@@ -10,6 +10,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -31,8 +32,8 @@ public class KestrelLogic {
     private LocationHandling locationHandling;
     private MaterialButton powerButton, rightButton, leftButton;
     private eKestrelMeasurement eKestrelMeasurementScreen;
-    private MaterialTextView measurementTextView,measurementIconText;
-    private AppCompatImageView measurementIcon1, measurementIcon2, measurementIcon3,measurementIcon4, kestrelFan;
+    private MaterialTextView measurementTextView, measurementIconText, holdText;
+    private AppCompatImageView measurementIcon1, measurementIcon2, measurementIcon3, measurementIcon4, kestrelFan;
     private boolean isPowerOn;
     private WeatherData weatherData;
     private ValueAnimator valueAnimator1, valueAnimator2;
@@ -42,11 +43,11 @@ public class KestrelLogic {
     private RotateAnimation rotate;
     private MenuItem locationSettingItem;
     private Handler handler;
+    private View kestrelLight;
+    private long downTime, upTime;
 
 
-
-
-     KestrelLogic(AppCompatActivity aca, MaterialButton fbb) {
+    KestrelLogic(AppCompatActivity aca, MaterialButton fbb) {
         activity = aca;
         locationHandling = new LocationHandling(activity);
         powerButton = activity.findViewById(R.id.powerButton);
@@ -62,18 +63,20 @@ public class KestrelLogic {
         measurementIcon2.setImageResource(R.drawable.ic_dropicon);
         measurementIcon3.setImageResource(R.drawable.ic_percentageicon);
         measurementIcon4.setImageResource(R.drawable.ic_temperatureicon);
-        invisibleKestrelMeasurementViews();
         kestrelFan = activity.findViewById(R.id.kestrelfan);
         kestrelLayout = activity.findViewById(R.id.kestrelayout);
         frontBackButton = fbb;
         handler = new Handler(Looper.getMainLooper());
+        kestrelLight = activity.findViewById(R.id.kestrelLight);
+        holdText = activity.findViewById(R.id.holdText);
+        invisibleKestrelMeasurementViews();
 
 
         weatherData = null;
         isPowerOn = false;
         eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
         locationHandling.uiListener = (this::updateUiWeatherData);
-         rotate = new RotateAnimation(
+        rotate = new RotateAnimation(
                 0, 360,
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f
@@ -82,7 +85,7 @@ public class KestrelLogic {
         rotate.setRepeatMode(Animation.RESTART);
         rotate.setInterpolator(new LinearInterpolator());
         rotate.setDuration(900);
-        activity.runOnUiThread(() -> kestrelFan.startAnimation(rotate));
+        kestrelFan.startAnimation(rotate);
 
 
         td = new TransitionDrawable(new Drawable[]{
@@ -92,12 +95,55 @@ public class KestrelLogic {
         td.setCrossFadeEnabled(true);
         kestrelFan.setImageDrawable(td);
 
-        powerButton.setOnClickListener((v) -> onPowerButtonClicked());
-         powerButton.setOnLongClickListener((v) ->
-         {
-             onPowerButtonPressed3Sec();
-             return  true;
-         });
+        powerButton.setOnClickListener((v) ->
+        {
+                  /*  if(leftButton.isPressed()&&isPowerOn)
+                    {
+                        holdTextVisibilityChange();
+                    }
+                    else {*/
+            onPowerButtonClicked();
+            //   }
+        });
+        powerButton.setOnLongClickListener((v) ->
+        {
+           /*  if(leftButton.isPressed()&&isPowerOn)
+             {
+                 holdTextVisibilityChange();
+             }
+             else
+             {*/
+            onPowerButtonPressed3Sec();
+            // }
+            return true;
+        });
+
+        powerButton.setOnTouchListener((view, motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    downTime = motionEvent.getDownTime();
+                    if (leftButton.isPressed()) {
+                        holdTextVisibilityChange();
+                        leftButton.setPressed(false);
+                    }
+                    return true;
+                }
+                case MotionEvent.ACTION_MOVE: {
+                     if (motionEvent.getEventTime() - downTime > 3000) {
+                         view.performLongClick();
+                         return true;
+                     }
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    if (motionEvent.getEventTime() - downTime < 500) {
+                        view.performClick();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
         /*powerButton.setOnTouchListener((v, event) -> {
             boolean isTurnedOffNow = false;
             switch (event.getAction()) {
@@ -125,19 +171,45 @@ public class KestrelLogic {
         });*/
         rightButton.setOnClickListener((v ->
         {
-                eKestrelMeasurementScreen = eKestrelMeasurementScreen.next();
-                setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
+            eKestrelMeasurementScreen = eKestrelMeasurementScreen.next();
+            setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
         }));
         leftButton.setOnClickListener((v ->
         {
-                eKestrelMeasurementScreen = eKestrelMeasurementScreen.previous();
-                setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
+           /* if(powerButton.isPressed() && isPowerOn)
+            {
+                holdTextVisibilityChange();
+            }
+            else {*/
+            eKestrelMeasurementScreen = eKestrelMeasurementScreen.previous();
+            setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
+            // }
         }));
+        leftButton.setOnTouchListener((view, motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    if (powerButton.isPressed()) {
+                        holdTextVisibilityChange();
+                        powerButton.setPressed(false);
+                    }
+                    return  true;
+                }
+                case MotionEvent.ACTION_UP: {
+                    {
+                            view.performClick();
+                            return true;
+                    }
+                }
+            }
+            return false;
+        });
         disableKestrelButtonsWithoutPower();
 
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(holdText, 1, 12, 1, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+        holdText.setTextColor(Color.BLACK);
+        holdText.setText(activity.getResources().getString(R.string.hold_text));
 
-
-        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(measurementIconText,1,12,1, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(measurementIconText, 1, 12, 1, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
         measurementIconText.setTextColor(Color.BLACK);
         setMeasurementFont();
         initializeAnimationViews();
@@ -152,23 +224,19 @@ public class KestrelLogic {
         measurementTextView.setTextColor(Color.BLACK);
     }
 
-     void onFrontDisplayFan(boolean isFront)
-    {
-        if(isFront)
-        {
+    void onFrontDisplayFan(boolean isFront) {
+        if (isFront) {
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(kestrelLayout);
-            constraintSet.setVerticalBias(R.id.kestrelfan,0.09f);
-            constraintSet.setHorizontalBias(R.id.kestrelfan,0.58f);
+            constraintSet.setVerticalBias(R.id.kestrelfan, 0.09f);
+            constraintSet.setHorizontalBias(R.id.kestrelfan, 0.58f);
             constraintSet.applyTo(kestrelLayout);
             td.reverseTransition(1000);
-        }
-        else
-        {
+        } else {
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(kestrelLayout);
-            constraintSet.setVerticalBias(R.id.kestrelfan,0.083f);
-            constraintSet.setHorizontalBias(R.id.kestrelfan,0.43f);
+            constraintSet.setVerticalBias(R.id.kestrelfan, 0.083f);
+            constraintSet.setHorizontalBias(R.id.kestrelfan, 0.43f);
             constraintSet.applyTo(kestrelLayout);
             td.startTransition(1000);
         }
@@ -185,6 +253,8 @@ public class KestrelLogic {
             measurementIcon3.setAlpha(alpha);
             measurementIcon4.setAlpha(alpha);
             measurementIconText.setAlpha(alpha);
+            kestrelLight.setAlpha(alpha);
+            holdText.setAlpha(alpha);
 
         });
 
@@ -198,6 +268,8 @@ public class KestrelLogic {
             measurementIcon3.setAlpha(alpha);
             measurementIcon4.setAlpha(alpha);
             measurementIconText.setAlpha(alpha);
+            kestrelLight.setAlpha(alpha);
+            holdText.setAlpha(alpha);
 
         });
     }
@@ -208,28 +280,22 @@ public class KestrelLogic {
             frontBackButton.setEnabled(false);
             locationHandling.locationRequestOnKestrelStart();
             locationSettingItem.setChecked(!locationHandling.getIsRandomValues());
-
-
-        }
-        else
-        {
+        } else {
             int isExecuted = 0;
-            if(handler.hasMessages(isExecuted))
-            {
+            if (handler.hasMessages(isExecuted)) {
                 handler.removeCallbacksAndMessages(null);
                 //set background light off
-            }
-            else
-            {
+                kestrelLight.setVisibility(View.INVISIBLE);
+            } else {
                 //set background light on
-
+                kestrelLight.setVisibility(View.VISIBLE);
                 handler.sendEmptyMessage(isExecuted);
                 handler.postDelayed(() -> {
                     //set background light off
+                    kestrelLight.setVisibility(View.INVISIBLE);
                     handler.removeMessages(isExecuted);
                 }, 10000);
             }
-
         }
     }
 
@@ -237,7 +303,6 @@ public class KestrelLogic {
         if (isPowerOn) {
             isPowerOn = !isPowerOn;
             handler.removeCallbacksAndMessages(null);
-            //set background light off
 
             disableKestrelButtonsWithoutPower();
             invisibleKestrelMeasurementViews();
@@ -332,6 +397,9 @@ public class KestrelLogic {
         measurementIcon3.setVisibility(View.INVISIBLE);
         measurementIcon4.setVisibility(View.INVISIBLE);
         measurementIconText.setVisibility(View.INVISIBLE);
+        //set background light off
+        kestrelLight.setVisibility(View.INVISIBLE);
+        holdText.setVisibility(View.INVISIBLE);
     }
 
     private void visibleKestrelMeasurementViews() {
@@ -357,7 +425,7 @@ public class KestrelLogic {
 
     private void updateUiWeatherData(WeatherData inWeatherData) {
         if (inWeatherData != null) {
-            if(isPowerOn) {
+            if (isPowerOn) {
                 weatherData = inWeatherData;
 
                 setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
@@ -392,12 +460,23 @@ public class KestrelLogic {
     private boolean getIsPowerOn() {
         return this.isPowerOn;
     }
-     void setLocationSettingItem(MenuItem locationSettingItem) {
+
+    void setLocationSettingItem(MenuItem locationSettingItem) {
         this.locationSettingItem = locationSettingItem;
         locationHandling.setLocationSettingItem(locationSettingItem);
     }
-     boolean getLocationSettingItemState() {
+
+    boolean getLocationSettingItemState() {
         return locationSettingItem.isChecked();
+    }
+
+    private void holdTextVisibilityChange() {
+        if (holdText.getVisibility() == View.VISIBLE) {
+            holdText.setVisibility(View.INVISIBLE);
+        } else {
+            holdText.setVisibility(View.VISIBLE);
+
+        }
     }
 
 
