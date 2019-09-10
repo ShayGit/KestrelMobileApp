@@ -44,7 +44,8 @@ public class KestrelLogic {
     private MenuItem locationSettingItem;
     private Handler handler;
     private View kestrelLight;
-    private long downTime, upTime;
+    private long downTimePower, upTimePower,downTimeLeft,upTimeLeft;
+    private boolean isHoldChanged, isNotPressedUp;
 
 
     KestrelLogic(AppCompatActivity aca, MaterialButton fbb) {
@@ -70,6 +71,7 @@ public class KestrelLogic {
         kestrelLight = activity.findViewById(R.id.kestrelLight);
         holdText = activity.findViewById(R.id.holdText);
         invisibleKestrelMeasurementViews();
+        isHoldChanged = false;
 
 
         weatherData = null;
@@ -121,59 +123,46 @@ public class KestrelLogic {
         powerButton.setOnTouchListener((view, motionEvent) -> {
             switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
-                    downTime = motionEvent.getDownTime();
-                    if (leftButton.isPressed()) {
+                    isHoldChanged = false;
+                    downTimePower = motionEvent.getDownTime();
+                    view.setPressed(true);
+                    isNotPressedUp = true;
+                    if(leftButton.isPressed())
+                    {
                         holdTextVisibilityChange();
+                        isHoldChanged = true;
+                       // view.setPressed(false);
                         leftButton.setPressed(false);
                     }
-                    return true;
+                    break;
                 }
                 case MotionEvent.ACTION_MOVE: {
-                     if (motionEvent.getEventTime() - downTime > 3000) {
-                         view.performLongClick();
-                         return true;
-                     }
+                    if (motionEvent.getEventTime() - downTimePower > 3000 && !isHoldChanged && view.isPressed() && !isNotPressedUp) {
+                        view.performLongClick();
+                        view.setPressed(false);
+                    }
                     break;
                 }
                 case MotionEvent.ACTION_UP: {
-                    if (motionEvent.getEventTime() - downTime < 500) {
+                    upTimePower = motionEvent.getEventTime();
+                    isNotPressedUp = false;
+                    if (upTimePower - downTimePower < 500 && !isHoldChanged) {
                         view.performClick();
-                        return true;
                     }
-                }
-            }
-            return false;
-        });
-        /*powerButton.setOnTouchListener((v, event) -> {
-            boolean isTurnedOffNow = false;
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_UP: {
-                    if (!(isTurnedOffNow || getIsPowerOn())) {
-                        onPowerButtonClicked();
-                    }
-                    return  true;
-                }
-                case MotionEvent.ACTION_DOWN: {
-                    down = event.getEventTime();
-                    return false;
-                }
-                case MotionEvent.ACTION_MOVE: {
-                    up = event.getEventTime();
-                    if (up - down > 3000 && getIsPowerOn()) {
-                        onPowerButtonPressed3Sec();
-                        isTurnedOffNow = true;
-                        return true;
-                    }
+                    view.setPressed(false);
+
                     break;
                 }
             }
-            return false;
-        });*/
+            return true;
+        });
+
         rightButton.setOnClickListener((v ->
         {
             eKestrelMeasurementScreen = eKestrelMeasurementScreen.next();
             setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
         }));
+
         leftButton.setOnClickListener((v ->
         {
            /* if(powerButton.isPressed() && isPowerOn)
@@ -185,23 +174,33 @@ public class KestrelLogic {
             setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
             // }
         }));
+
         leftButton.setOnTouchListener((view, motionEvent) -> {
             switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
-                    if (powerButton.isPressed()) {
+                    downTimeLeft = motionEvent.getDownTime();
+                    isHoldChanged = false;
+                    view.setPressed(true);
+                    if(powerButton.isPressed())
+                    {
                         holdTextVisibilityChange();
+                        isHoldChanged = true;
+                        //view.setPressed(false);
                         powerButton.setPressed(false);
                     }
-                    return  true;
+                    break;
                 }
+
                 case MotionEvent.ACTION_UP: {
-                    {
-                            view.performClick();
-                            return true;
+                    upTimeLeft = motionEvent.getEventTime();
+                    if(upTimeLeft - downTimeLeft < 500 && !isHoldChanged) {
+                        view.performClick();
                     }
+                    view.setPressed(false);
+                    break;
                 }
             }
-            return false;
+            return true;
         });
         disableKestrelButtonsWithoutPower();
 
