@@ -9,6 +9,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.renderscript.RenderScript;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,10 +46,12 @@ public class KestrelLogic {
     private MenuItem locationSettingItem;
     private Handler handler;
     private View kestrelLight;
-    private long downTimePower, upTimePower,downTimeLeft,upTimeLeft;
-    private boolean isHoldChanged, isNotPressedUp;
+    private long downTimePower, upTimePower, downTimeLeft, upTimeLeft;
+    private boolean isHoldChanged,upNotDown;
+    private int downTwiceNoUp;
 
 
+    @SuppressLint("ClickableViewAccessibility")
     KestrelLogic(AppCompatActivity aca, MaterialButton fbb) {
         activity = aca;
         locationHandling = new LocationHandling(activity);
@@ -72,6 +76,7 @@ public class KestrelLogic {
         holdText = activity.findViewById(R.id.holdText);
         invisibleKestrelMeasurementViews();
         isHoldChanged = false;
+        downTwiceNoUp = 0;
 
 
         weatherData = null;
@@ -97,65 +102,7 @@ public class KestrelLogic {
         td.setCrossFadeEnabled(true);
         kestrelFan.setImageDrawable(td);
 
-        powerButton.setOnClickListener((v) ->
-        {
-                  /*  if(leftButton.isPressed()&&isPowerOn)
-                    {
-                        holdTextVisibilityChange();
-                    }
-                    else {*/
-            onPowerButtonClicked();
-            //   }
-        });
-        powerButton.setOnLongClickListener((v) ->
-        {
-           /*  if(leftButton.isPressed()&&isPowerOn)
-             {
-                 holdTextVisibilityChange();
-             }
-             else
-             {*/
-            onPowerButtonPressed3Sec();
-            // }
-            return true;
-        });
-
-        powerButton.setOnTouchListener((view, motionEvent) -> {
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
-                    isHoldChanged = false;
-                    downTimePower = motionEvent.getDownTime();
-                    view.setPressed(true);
-                    isNotPressedUp = true;
-                    if(leftButton.isPressed())
-                    {
-                        holdTextVisibilityChange();
-                        isHoldChanged = true;
-                       // view.setPressed(false);
-                        leftButton.setPressed(false);
-                    }
-                    break;
-                }
-                case MotionEvent.ACTION_MOVE: {
-                    if (motionEvent.getEventTime() - downTimePower > 3000 && !isHoldChanged && view.isPressed() && !isNotPressedUp) {
-                        view.performLongClick();
-                        view.setPressed(false);
-                    }
-                    break;
-                }
-                case MotionEvent.ACTION_UP: {
-                    upTimePower = motionEvent.getEventTime();
-                    isNotPressedUp = false;
-                    if (upTimePower - downTimePower < 500 && !isHoldChanged) {
-                        view.performClick();
-                    }
-                    view.setPressed(false);
-
-                    break;
-                }
-            }
-            return true;
-        });
+        powerButton.setOnTouchListener(this::onTouch);
 
         rightButton.setOnClickListener((v ->
         {
@@ -163,45 +110,8 @@ public class KestrelLogic {
             setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
         }));
 
-        leftButton.setOnClickListener((v ->
-        {
-           /* if(powerButton.isPressed() && isPowerOn)
-            {
-                holdTextVisibilityChange();
-            }
-            else {*/
-            eKestrelMeasurementScreen = eKestrelMeasurementScreen.previous();
-            setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
-            // }
-        }));
 
-        leftButton.setOnTouchListener((view, motionEvent) -> {
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
-                    downTimeLeft = motionEvent.getDownTime();
-                    isHoldChanged = false;
-                    view.setPressed(true);
-                    if(powerButton.isPressed())
-                    {
-                        holdTextVisibilityChange();
-                        isHoldChanged = true;
-                        //view.setPressed(false);
-                        powerButton.setPressed(false);
-                    }
-                    break;
-                }
-
-                case MotionEvent.ACTION_UP: {
-                    upTimeLeft = motionEvent.getEventTime();
-                    if(upTimeLeft - downTimeLeft < 500 && !isHoldChanged) {
-                        view.performClick();
-                    }
-                    view.setPressed(false);
-                    break;
-                }
-            }
-            return true;
-        });
+        leftButton.setOnTouchListener(this::onTouch);
         disableKestrelButtonsWithoutPower();
 
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(holdText, 1, 12, 1, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
@@ -213,6 +123,84 @@ public class KestrelLogic {
         setMeasurementFont();
         initializeAnimationViews();
 
+    }
+
+    public boolean onTouch(View v, MotionEvent event) {
+        if (v.getId() == R.id.powerButton) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    Log.d("abac","power action_down");
+                    downTimePower = event.getDownTime();
+                    powerButton.setPressed(true);
+
+                    if(!leftButton.isPressed()) {
+                        isHoldChanged = false;
+                    }
+                    else if ( !isHoldChanged) {
+                        Log.d("abac","power action_down leftbutton pressed");
+                        holdTextVisibilityChange();
+                        isHoldChanged = true;
+                        //v.setPressed(false);
+                        //leftButton.setPressed(false);
+                    }
+                    break;
+                }
+                case MotionEvent.ACTION_MOVE: {
+                    Log.d("abac","power action_move");
+
+                    if (event.getEventTime() - downTimePower > 2000 && !isHoldChanged) {
+                        Log.d("abac","power action_move shut down");
+                        onPowerButtonPressed3Sec();
+                        //v.setPressed(false);
+                    }
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    Log.d("abac","power action_up");
+
+                    upTimePower = event.getEventTime();
+                    if (upTimePower - downTimePower < 500 && !isHoldChanged) {
+                        onPowerButtonClicked();
+                    }
+                    v.setPressed(false);
+                }
+            }
+            return true;
+        } else if (v.getId() == R.id.leftButton) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    Log.d("abac","left action_down");
+                    downTimePower = event.getDownTime();
+                    v.setPressed(true);
+                    if(!powerButton.isPressed()) {
+                        isHoldChanged = false;
+                    }
+                    else if (!isHoldChanged) {
+                        Log.d("abac","left action_down power pressed");
+                        holdTextVisibilityChange();
+                        isHoldChanged = true;
+                        //v.setPressed(false);
+                        //powerButton.setPressed(false);
+                    }
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    Log.d("abac","left action_up");
+
+                    upTimeLeft = event.getEventTime();
+                    if ( !isHoldChanged) {
+                        Log.d("abac","left action_up change view");
+
+                        eKestrelMeasurementScreen = eKestrelMeasurementScreen.previous();
+                        setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
+                    }
+                    v.setPressed(false);
+
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     private void setMeasurementFont() {
@@ -279,7 +267,7 @@ public class KestrelLogic {
             frontBackButton.setEnabled(false);
             locationHandling.locationRequestOnKestrelStart();
             locationSettingItem.setChecked(!locationHandling.getIsRandomValues());
-        } else {
+        } else if(locationHandling.getProgressBar().getVisibility() ==View.INVISIBLE){
             int isExecuted = 0;
             if (handler.hasMessages(isExecuted)) {
                 handler.removeCallbacksAndMessages(null);
@@ -452,12 +440,12 @@ public class KestrelLogic {
         return this.locationHandling;
     }
 
-    private void setIsPowerOn(boolean ispo) {
-        this.isPowerOn = ispo;
-    }
-
     private boolean getIsPowerOn() {
         return this.isPowerOn;
+    }
+
+    private void setIsPowerOn(boolean ispo) {
+        this.isPowerOn = ispo;
     }
 
     void setLocationSettingItem(MenuItem locationSettingItem) {

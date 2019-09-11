@@ -380,6 +380,12 @@ import java.util.Random;
          pB.setVisibility(View.INVISIBLE);
 
      }
+
+     public ProgressBar getProgressBar()
+     {
+         return  this.pB;
+
+     }
      public void setLocationSettingItem(MenuItem locationSettingItem) {
      this.locationSettingItem = locationSettingItem;
      }
