@@ -125,11 +125,10 @@ public class KestrelLogic {
 
     }
 
-    public boolean onTouch(View v, MotionEvent event) {
+    private boolean onTouch(View v, MotionEvent event) {
         if (v.getId() == R.id.powerButton) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
-                    Log.d("abac","power action_down");
                     downTimePower = event.getDownTime();
                     powerButton.setPressed(true);
 
@@ -137,26 +136,19 @@ public class KestrelLogic {
                         isHoldChanged = false;
                     }
                     else if ( !isHoldChanged) {
-                        Log.d("abac","power action_down leftbutton pressed");
                         holdTextVisibilityChange();
                         isHoldChanged = true;
-                        //v.setPressed(false);
-                        //leftButton.setPressed(false);
                     }
                     break;
                 }
                 case MotionEvent.ACTION_MOVE: {
-                    Log.d("abac","power action_move");
 
                     if (event.getEventTime() - downTimePower > 2000 && !isHoldChanged) {
-                        Log.d("abac","power action_move shut down");
                         onPowerButtonPressed3Sec();
-                        //v.setPressed(false);
                     }
                     break;
                 }
                 case MotionEvent.ACTION_UP: {
-                    Log.d("abac","power action_up");
 
                     upTimePower = event.getEventTime();
                     if (upTimePower - downTimePower < 500 && !isHoldChanged) {
@@ -169,28 +161,21 @@ public class KestrelLogic {
         } else if (v.getId() == R.id.leftButton) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
-                    Log.d("abac","left action_down");
                     downTimePower = event.getDownTime();
                     v.setPressed(true);
                     if(!powerButton.isPressed()) {
                         isHoldChanged = false;
                     }
                     else if (!isHoldChanged) {
-                        Log.d("abac","left action_down power pressed");
                         holdTextVisibilityChange();
                         isHoldChanged = true;
-                        //v.setPressed(false);
-                        //powerButton.setPressed(false);
                     }
                     break;
                 }
                 case MotionEvent.ACTION_UP: {
-                    Log.d("abac","left action_up");
 
                     upTimeLeft = event.getEventTime();
                     if ( !isHoldChanged) {
-                        Log.d("abac","left action_up change view");
-
                         eKestrelMeasurementScreen = eKestrelMeasurementScreen.previous();
                         setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
                     }
