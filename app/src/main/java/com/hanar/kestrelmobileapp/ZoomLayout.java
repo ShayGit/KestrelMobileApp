@@ -143,4 +143,23 @@ public class ZoomLayout extends FrameLayout implements ScaleGestureDetector.OnSc
     private View child() {
         return getChildAt(0);
     }
+
+    public void resetZoom()
+    {
+          mode = Mode.NONE;
+        scale = 1.0f;
+        lastScaleFactor = 0f;
+
+        // Where the finger first  touches the screen
+         startX = 0f;
+         startY = 0f;
+
+        // How much to translate the canvas
+         dx = 0f;
+         dy = 0f;
+         prevDx = 0f;
+         prevDy = 0f;
+
+        applyScaleAndTranslation();
+    }
 }

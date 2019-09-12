@@ -22,11 +22,11 @@ import com.google.android.material.textview.MaterialTextView;
 
 public class MainActivity extends AppCompatActivity {
     private boolean isFront;
-    private MaterialButton frontBackButton;
+    private MaterialButton frontBackButton, userGuideButton;
     private TransitionDrawable td;
     private KestrelLogic kestrelLogic;
     private boolean locationPref;
-
+    private SequenceExample sq;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
         isFront = true;
         frontBackButton.setText(R.string.front_button);
         frontBackButton.setOnClickListener((v) -> changeFrontBackImage());
+        sq = new SequenceExample(this);
+
     }
 
     @SuppressLint("MissingPermission")
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         kestrelLogic.getLocationHandling().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private void changeFrontBackImage() {
+    public void changeFrontBackImage() {
         if (isFront) {
             td.startTransition(500);
             kestrelLogic.invisibleKestrelButtons();
@@ -126,6 +128,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public boolean getIsFront()
+    {
+        return this.isFront;
+    }
+
+    public KestrelLogic getKestrelLogic()
+    {
+        return this.kestrelLogic;
     }
 
 }

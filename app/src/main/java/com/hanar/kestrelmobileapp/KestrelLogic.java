@@ -81,7 +81,8 @@ public class KestrelLogic {
 
         weatherData = null;
         isPowerOn = false;
-        eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
+        locationHandling.setIsPowerOn(false);
+        setDefaultMeasurement();
         locationHandling.uiListener = (this::updateUiWeatherData);
         rotate = new RotateAnimation(
                 0, 360,
@@ -106,8 +107,7 @@ public class KestrelLogic {
 
         rightButton.setOnClickListener((v ->
         {
-            eKestrelMeasurementScreen = eKestrelMeasurementScreen.next();
-            setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
+            onRightButtonClick();
         }));
 
 
@@ -246,10 +246,11 @@ public class KestrelLogic {
         });
     }
 
-    private void onPowerButtonClicked() {
+     void onPowerButtonClicked() {
         if (!isPowerOn) {
             isPowerOn = !isPowerOn;
             frontBackButton.setEnabled(false);
+            locationHandling.setIsPowerOn(!isPowerOn);
             locationHandling.locationRequestOnKestrelStart();
             locationSettingItem.setChecked(!locationHandling.getIsRandomValues());
         } else if(locationHandling.getProgressBar().getVisibility() ==View.INVISIBLE){
@@ -271,15 +272,17 @@ public class KestrelLogic {
         }
     }
 
-    private void onPowerButtonPressed3Sec() {
+     void onPowerButtonPressed3Sec() {
         if (isPowerOn) {
             isPowerOn = !isPowerOn;
+            locationHandling.setIsPowerOn(!isPowerOn);
             handler.removeCallbacksAndMessages(null);
 
             disableKestrelButtonsWithoutPower();
             invisibleKestrelMeasurementViews();
             locationHandling.setProgressBar(false);
             frontBackButton.setEnabled(true);
+
 
         }
     }
@@ -416,6 +419,7 @@ public class KestrelLogic {
                     }).create().show();*/
         } else if (locationHandling.getIsLocationOrNetworkDisabled()) {
             setIsPowerOn(false);
+            locationHandling.setIsPowerOn(false);
         }
         frontBackButton.setEnabled(true);
 
@@ -425,7 +429,7 @@ public class KestrelLogic {
         return this.locationHandling;
     }
 
-    private boolean getIsPowerOn() {
+     boolean getIsPowerOn() {
         return this.isPowerOn;
     }
 
@@ -436,6 +440,9 @@ public class KestrelLogic {
     void setLocationSettingItem(MenuItem locationSettingItem) {
         this.locationSettingItem = locationSettingItem;
         locationHandling.setLocationSettingItem(locationSettingItem);
+    }
+    MenuItem getLocationSettingItem() {
+        return this.locationSettingItem;
     }
 
     boolean getLocationSettingItemState() {
@@ -449,6 +456,17 @@ public class KestrelLogic {
             holdText.setVisibility(View.VISIBLE);
 
         }
+    }
+
+     void setDefaultMeasurement()
+    {
+        eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
+    }
+
+    void onRightButtonClick()
+    {
+        eKestrelMeasurementScreen = eKestrelMeasurementScreen.next();
+        setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
     }
 
 

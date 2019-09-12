@@ -36,7 +36,7 @@ import androidx.core.app.ActivityCompat;
 
 import java.util.Random;
 
- class LocationHandling implements WeatherTask.Callback {
+class LocationHandling implements WeatherTask.Callback {
     private FusedLocationProviderClient fusedLocationClient;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private LocationRequest locationRequest;
@@ -45,32 +45,32 @@ import java.util.Random;
     private ProgressBar pB;
 
 
-
     private boolean isRandomValues;
     private AppCompatActivity activity;
     private IWeatherDataService weatherService;
     private WeatherData weatherData;
-     onUpdateUIListener uiListener;
+    onUpdateUIListener uiListener;
     private boolean isLocationOrNetworkDisabled;
-     private MenuItem locationSettingItem;
+    private MenuItem locationSettingItem;
+    private WeatherTask weatherTask = null;
+    private boolean isPowerOn;
 
 
-
-     interface onUpdateUIListener {
+    interface onUpdateUIListener {
         void onUpdateUI(WeatherData wd);
     }
 
-     LocationHandling(AppCompatActivity activityChain) {
+    LocationHandling(AppCompatActivity activityChain) {
         activity = activityChain;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
         isRandomValues = false;
-        pB =  activity.findViewById(R.id.pb);
+        pB = activity.findViewById(R.id.pb);
         weatherService = WeatherDataServiceFactory.getWeatherDataService(WeatherDataServiceFactory.eServiceType.OpenWeatherMap);
         weatherData = null;
         isLocationOrNetworkDisabled = false;
     }
 
-     void locationRequestOnKestrelStart() {
+    void locationRequestOnKestrelStart() {
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
@@ -78,7 +78,7 @@ import java.util.Random;
             // Should we show an explanation?
             if (!isRandomValues) {
 
-                    new MaterialAlertDialogBuilder(activity).
+                new MaterialAlertDialogBuilder(activity).
                         setCancelable(false)
                         .setMessage("האפליקציה מעוניינת להשתמש במיקומך האחרון על מנת שהקסטרל יציג נתונים על פי מיקומך, במידה ואינך מעוניינ/ת בכך, הקסטרל יציג נתונים אקראיים")
                         .setPositiveButton("הבנתי", (dialog, which) -> ActivityCompat.requestPermissions(activity,
@@ -93,9 +93,7 @@ import java.util.Random;
             //Toast.makeText(activity, "Permission granted", Toast.LENGTH_SHORT).show();
             if (isRandomValues) {
                 setUiRandomValues();
-            }
-            else
-            {
+            } else {
                 getLocationAndUpdateUI();
             }
         }
@@ -111,12 +109,10 @@ import java.util.Random;
         weatherData.setHumidity(rn.nextInt(96) + 5);
         if (weatherData.getTemperature() <= 10 && weatherData.getWindSpeed() > 1.3) {
             weatherData.setWindChill(JSONWeatherParser.getWindChillByFormula(weatherData.getTemperature(), weatherData.getWindSpeed()));
-        }
-        else
-        {
+        } else {
             weatherData.setWindChill(weatherData.getTemperature());
         }
-        weatherData.setDiscomfortIndex(JSONWeatherParser.getDiscomfortIndexByFormula(weatherData.getTemperature(),weatherData.getHumidity()));
+        weatherData.setDiscomfortIndex(JSONWeatherParser.getDiscomfortIndexByFormula(weatherData.getTemperature(), weatherData.getHumidity()));
         uiListener.onUpdateUI(weatherData);
 
     }
@@ -148,7 +144,8 @@ import java.util.Random;
                                 if (location != null) {
                                     if (!uiUpdated) {
                                         Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
-                                        new WeatherTask(weatherService,LocationHandling.this::postWeatherRetrieval).execute(location.getLongitude(), location.getLatitude());
+                                        weatherTask = new WeatherTask(weatherService, LocationHandling.this::postWeatherRetrieval);
+                                        weatherTask.execute(location.getLongitude(), location.getLatitude());
                                         uiUpdated = true;
                                     }
                                     break;
@@ -169,7 +166,8 @@ import java.util.Random;
                                     if (longtitude == 0.0 && latitude == 0.0) {
                                         isLocationEnabled();
                                     } else {
-                                        new WeatherTask(weatherService,LocationHandling.this::postWeatherRetrieval).execute(longtitude, latitude);
+                                        weatherTask = new WeatherTask(weatherService, LocationHandling.this::postWeatherRetrieval);
+                                        weatherTask.execute(longtitude, latitude);
 
                                     }
                                     uiUpdated = true;
@@ -181,8 +179,8 @@ import java.util.Random;
                 } else {
                     setProgressBar(true);
                     //Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
-                    new WeatherTask(weatherService,LocationHandling.this::postWeatherRetrieval).execute(location.getLongitude(), location.getLatitude());
-
+                    weatherTask = new WeatherTask(weatherService, LocationHandling.this::postWeatherRetrieval);
+                    weatherTask.execute(location.getLongitude(), location.getLatitude());
                     // retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
                     //updateKestrelUI();
                 }
@@ -203,13 +201,13 @@ import java.util.Random;
                             // ResolvableApiException resolvable = (ResolvableApiException) e;
                             // resolvable.startResolutionForResult(MainActivity.this,
                             //       REQUEST_CHECK_SETTINGS);
-                                isLocationEnabled();
+                            isLocationEnabled();
                         } else {
 
-                                new WeatherTask(weatherService,LocationHandling.this::postWeatherRetrieval).execute(longtitude, latitude);
-
-                                //  retrieveWeatherByLocation(longtitude, latitude);
-                                //updateKestrelUI();
+                            weatherTask = new WeatherTask(weatherService, LocationHandling.this::postWeatherRetrieval);
+                            weatherTask.execute(longtitude, latitude);
+                            //  retrieveWeatherByLocation(longtitude, latitude);
+                            //updateKestrelUI();
                         }
                         uiUpdated = true;
                     }
@@ -231,21 +229,23 @@ import java.util.Random;
             isLocationOrNetworkDisabled = false;
             if (checkNetworkConnected()) {
                 isLocationOrNetworkDisabled = false;
-                final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
-                builder.setMessage("נראה שהמיקום מופעל אך בכל זאת יש בעיה כלשהי, נאלץ לבטל את פיצ'ר זה ויוצגו ערכים אקראיים, לנסיון נוסף הפעל את האפליקציה מחדש.")
-                        .setCancelable(false)
-                        .setPositiveButton("הבנתי", (dialog, id) -> {
-                            setUiRandomValues();
-                            dialog.dismiss();
-                        }).create().show();
+                if(isPowerOn) {
+                    final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+                    builder.setMessage("נראה שהמיקום מופעל אך בכל זאת יש בעיה כלשהי, נאלץ לבטל את פיצ'ר זה ויוצגו ערכים אקראיים, לנסיון נוסף הפעל את האפליקציה מחדש.")
+                            .setCancelable(false)
+                            .setPositiveButton("הבנתי", (dialog, id) -> {
+                                setUiRandomValues();
+                                dialog.dismiss();
+                            }).create().show();
+                }
             } else {
                 isLocationOrNetworkDisabled = true;
             }
         }
     }
+
     @Override
-    public void postWeatherRetrieval(AsyncTaskResult<WeatherData> atr)
-    {
+    public void postWeatherRetrieval(AsyncTaskResult<WeatherData> atr) {
         if (atr == null) {
             Toast.makeText(activity, "תוצאת התהליך לקבלת מידע מזג האוויר null", Toast.LENGTH_SHORT).show();
 
@@ -336,7 +336,7 @@ import java.util.Random;
         return connected;
     }
 
-     void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -364,6 +364,7 @@ import java.util.Random;
     public void setIsRandomValues(boolean i_isRandomValues) {
         isRandomValues = i_isRandomValues;
     }
+
     public boolean getIsRandomValues() {
         return isRandomValues;
     }
@@ -372,21 +373,29 @@ import java.util.Random;
         return this.isLocationOrNetworkDisabled;
     }
 
-     public void setProgressBar(boolean isVisible)
-     {
-         if(isVisible)
-        pB.setVisibility(View.VISIBLE);
+    public void setProgressBar(boolean isVisible) {
+        if (isVisible)
+            pB.setVisibility(View.VISIBLE);
         else
-         pB.setVisibility(View.INVISIBLE);
+            pB.setVisibility(View.INVISIBLE);
 
-     }
+    }
 
-     public ProgressBar getProgressBar()
-     {
-         return  this.pB;
+    public ProgressBar getProgressBar() {
+        return this.pB;
 
-     }
-     public void setLocationSettingItem(MenuItem locationSettingItem) {
-     this.locationSettingItem = locationSettingItem;
-     }
+    }
+
+    public void setLocationSettingItem(MenuItem locationSettingItem) {
+        this.locationSettingItem = locationSettingItem;
+    }
+
+    WeatherTask getWeatherTask()
+    {
+        return  this.weatherTask;
+    }
+
+     void setIsPowerOn(boolean ispo) {
+        this.isPowerOn = ispo;
+    }
 }
