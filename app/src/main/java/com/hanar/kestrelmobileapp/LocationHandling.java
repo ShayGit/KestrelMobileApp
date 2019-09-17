@@ -90,7 +90,6 @@ class LocationHandling implements WeatherTask.Callback {
                 setUiRandomValues();
             }
         } else {
-            //Toast.makeText(activity, "Permission granted", Toast.LENGTH_SHORT).show();
             if (isRandomValues) {
                 setUiRandomValues();
             } else {
@@ -143,7 +142,6 @@ class LocationHandling implements WeatherTask.Callback {
                             for (Location location : locationResult.getLocations()) {
                                 if (location != null) {
                                     if (!uiUpdated) {
-                                        Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
                                         weatherTask = new WeatherTask(weatherService, LocationHandling.this::postWeatherRetrieval);
                                         weatherTask.execute(location.getLongitude(), location.getLatitude());
                                         uiUpdated = true;
@@ -154,14 +152,12 @@ class LocationHandling implements WeatherTask.Callback {
                             if (fusedLocationClient != null && uiUpdated) {
                                 fusedLocationClient.removeLocationUpdates(this);
                             }
-                            Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onLocationAvailability(LocationAvailability locationAvailability) {
                             if (!locationAvailability.isLocationAvailable()) {
                                 setProgressBar(false);
-                                //Toast.makeText(activity, Double.toString(longtitude), Toast.LENGTH_SHORT).show();
                                 if (!uiUpdated) {
                                     if (longtitude == 0.0 && latitude == 0.0) {
                                         isLocationEnabled();
@@ -178,11 +174,8 @@ class LocationHandling implements WeatherTask.Callback {
                     fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
                 } else {
                     setProgressBar(true);
-                    //Toast.makeText(activity, Double.toString(location.getLongitude()), Toast.LENGTH_SHORT).show();
                     weatherTask = new WeatherTask(weatherService, LocationHandling.this::postWeatherRetrieval);
                     weatherTask.execute(location.getLongitude(), location.getLatitude());
-                    // retrieveWeatherByLocation(location.getLongitude(), location.getLatitude());
-                    //updateKestrelUI();
                 }
             }
         }).addOnFailureListener(activity, new OnFailureListener() {
@@ -229,7 +222,7 @@ class LocationHandling implements WeatherTask.Callback {
             isLocationOrNetworkDisabled = false;
             if (checkNetworkConnected()) {
                 isLocationOrNetworkDisabled = false;
-                if(isPowerOn) {
+                if (isPowerOn) {
                     final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
                     builder.setMessage("נראה שהמיקום מופעל אך בכל זאת יש בעיה כלשהי, נאלץ לבטל את פיצ'ר זה ויוצגו ערכים אקראיים, לנסיון נוסף הפעל את האפליקציה מחדש.")
                             .setCancelable(false)
@@ -247,7 +240,7 @@ class LocationHandling implements WeatherTask.Callback {
     @Override
     public void postWeatherRetrieval(AsyncTaskResult<WeatherData> atr) {
         if (atr == null) {
-            Toast.makeText(activity, "תוצאת התהליך לקבלת מידע מזג האוויר null", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "שגיאה בקבלת נתונים מהשרת, נסה שנית או בטל נתונים על פי מיקום.", Toast.LENGTH_SHORT).show();
 
         } else if (atr.getError() != null) {
             Toast.makeText(activity, atr.getError().getMessage(), Toast.LENGTH_SHORT).show();
@@ -351,7 +344,27 @@ class LocationHandling implements WeatherTask.Callback {
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(activity, "Permission denied", Toast.LENGTH_SHORT).show();
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_COARSE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.INTERNET)) {
+                        //denied
+                        //Log.e("denied", permission);
+                        new MaterialAlertDialogBuilder(activity).
+                                setCancelable(false)
+                                .setMessage(" בטוח/ה? שימוש במיקום מאפשר קבלת נתונים רלוונטים למיקומך, אחרת יתקבלו ערכים אקראיים.")
+                                .setPositiveButton("אוקיי, מעוניין", (dialog, which) -> ActivityCompat.requestPermissions(activity,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET},
+                                        MY_PERMISSIONS_REQUEST_LOCATION)).setNegativeButton("לא מעוניינ/ת", (dialog, which) -> setUiRandomValues()).create()
+                                .show();
+
+                    } else {
+                        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                                ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                                ActivityCompat.checkSelfPermission(activity, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
+                            locationRequestOnKestrelStart();
+                        } else {
+                            setUiRandomValues();
+                        }
+                    }
+                    //Toast.makeText(activity, "Permission denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
@@ -359,6 +372,22 @@ class LocationHandling implements WeatherTask.Callback {
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    public boolean isDeniedPermissions()
+    {
+        boolean is = false;
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_COARSE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.INTERNET)) {
+
+        } else {
+            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(activity, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
+            } else {
+                is = true;
+            }
+        }
+        return is;
     }
 
     public void setIsRandomValues(boolean i_isRandomValues) {
@@ -390,12 +419,11 @@ class LocationHandling implements WeatherTask.Callback {
         this.locationSettingItem = locationSettingItem;
     }
 
-    WeatherTask getWeatherTask()
-    {
-        return  this.weatherTask;
+    WeatherTask getWeatherTask() {
+        return this.weatherTask;
     }
 
-     void setIsPowerOn(boolean ispo) {
+    void setIsPowerOn(boolean ispo) {
         this.isPowerOn = ispo;
     }
 }

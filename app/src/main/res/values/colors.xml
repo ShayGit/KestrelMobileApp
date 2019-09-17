@@ -6,6 +6,10 @@
     <color name="white">#FFFFFF</color>
     <color name="transparent">#00000000</color>
     <color name="kestrelLight">#90038997</color>
+    <color name="guideMask">#E43D47A7</color>
+    <color name="guideTitle">#F8BD0C</color>
+    <color name="guideContent">#FFFFFF</color>
+
 
 
 </resources>

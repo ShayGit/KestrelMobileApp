@@ -1,8 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layoutDirection="rtl"
     android:layout_gravity="end"
+    android:layoutDirection="rtl"
     tools:context="com.hanar.kestrelmobileapp.MainActivity">
     <item
         android:id="@+id/location_setting"
@@ -14,6 +14,18 @@
     <item
         android:id="@+id/user_guide"
         android:title="@string/user_guide"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/user_guide_english"
+        android:title="@string/user_guide_english"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/share"
+        android:title="@string/share"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/contact"
+        android:title="@string/contact"
         app:showAsAction="never" />
     <item
         android:id="@+id/privacy_agreement"

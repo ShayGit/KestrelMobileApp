@@ -135,10 +135,10 @@ public class KestrelLogic {
                     if(!leftButton.isPressed()) {
                         isHoldChanged = false;
                     }
-                    else if ( !isHoldChanged) {
+                   /* else if ( !isHoldChanged) {
                         holdTextVisibilityChange();
                         isHoldChanged = true;
-                    }
+                    }*/
                     break;
                 }
                 case MotionEvent.ACTION_MOVE: {
@@ -314,10 +314,10 @@ public class KestrelLogic {
     }
 
     @SuppressLint("SetTextI18n")
-    private void setKestrelMeasurementViewAndIcons(eKestrelMeasurement eKestrelMeasurementInstance) {
+    public void setKestrelMeasurementViewAndIcons(eKestrelMeasurement eKestrelMeasurementInstance) {
         switch (eKestrelMeasurementInstance) {
             case Temperature:
-                measurementTextView.setText(Float.toString(weatherData.getTemperature()));
+                measurementTextView.setText(String.format("%.1f",weatherData.getTemperature()));
                 measurementIcon4.setVisibility(View.VISIBLE);
                 measurementIcon1.setVisibility(View.INVISIBLE);
                 measurementIcon2.setVisibility(View.INVISIBLE);
@@ -326,7 +326,7 @@ public class KestrelLogic {
                 measurementIconText.setText("°C");
                 break;
             case WindSpeed:
-                measurementTextView.setText(Float.toString(weatherData.getWindSpeed()));
+                measurementTextView.setText(String.format("%.1f",weatherData.getWindSpeed()));
                 measurementIcon1.setVisibility(View.VISIBLE);
                 measurementIcon2.setVisibility(View.INVISIBLE);
                 measurementIcon3.setVisibility(View.INVISIBLE);
@@ -335,7 +335,7 @@ public class KestrelLogic {
                 measurementIconText.setText("m/s");
                 break;
             case Humidity:
-                measurementTextView.setText(Integer.toString(weatherData.getHumidity()));
+                measurementTextView.setText(String.format("%d",weatherData.getHumidity()));
                 measurementIcon1.setVisibility(View.INVISIBLE);
                 measurementIcon2.setVisibility(View.VISIBLE);
                 measurementIcon3.setVisibility(View.VISIBLE);
@@ -344,7 +344,7 @@ public class KestrelLogic {
                 measurementIconText.setVisibility(View.INVISIBLE);
                 break;
             case WindChill:
-                measurementTextView.setText(Float.toString(weatherData.getWindChill()));
+                measurementTextView.setText(String.format("%.1f",weatherData.getWindChill()));
                 measurementIcon1.setVisibility(View.VISIBLE);
                 measurementIcon2.setVisibility(View.INVISIBLE);
                 measurementIcon3.setVisibility(View.INVISIBLE);
@@ -353,7 +353,7 @@ public class KestrelLogic {
                 measurementIconText.setText("°C");
                 break;
             case DiscomfortIndex:
-                measurementTextView.setText(Float.toString(weatherData.getDiscomfortIndex()));
+                measurementTextView.setText(String.format("%.1f",weatherData.getDiscomfortIndex()));
                 measurementIcon1.setVisibility(View.INVISIBLE);
                 measurementIcon2.setVisibility(View.VISIBLE);
                 measurementIcon3.setVisibility(View.VISIBLE);

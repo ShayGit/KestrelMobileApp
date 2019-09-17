@@ -2,10 +2,18 @@
     <string name="app_name">Kestrel Meter</string>
     <string name="action_settings">קבל נתונים על פי המיקום</string>
     <string name="privacy_agreement">מדיניות פרטיות</string>
-    <string name="user_guide">הוראות משתמש בעברית</string>
+    <string name="user_guide">הוראות משתמש בעברית </string>
+    <string name="user_guide_link">https://drive.google.com/uc?export=download&amp;id=1MnYbN20jP_IfepvhAe-CV1BWSwUyTcYI</string>
+    <string name="user_guide_english">הוראות משתמש באנגלית</string>
+    <string name="user_guide_english_link">https://drive.google.com/uc?export=download&amp;id=1WL4hSLcKEEVkDFmSly7_XPsQC5WZJSvP</string>
     <string name="user_guide_button">מדריך השימוש</string>
     <string name="front_button">תצוגה קידמית</string>
     <string name="back_Button">תצוגה אחורית</string>
     <string name="hold_text">Hold</string>
+    <string name="share">שתף</string>
+    <string name="contact">צור קשר</string>
+
+
+    <string name="privacy_policy"><a href="https://ventilatorapp.flycricket.io/privacy.html">• מדיניות פרטיות </a> </string>
 
 </resources>

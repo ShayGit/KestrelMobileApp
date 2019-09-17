@@ -1,9 +1,11 @@
 package com.hanar.kestrelmobileapp;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,15 +16,17 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 
 @SuppressLint("ClickableViewAccessibility")
 
 public class MainActivity extends AppCompatActivity {
     private boolean isFront;
-    private MaterialButton frontBackButton, userGuideButton;
+    private MaterialButton frontBackButton;
     private TransitionDrawable td;
     private KestrelLogic kestrelLogic;
     private boolean locationPref;
@@ -79,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
         kestrelLogic.getLocationHandling().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    public MaterialButton getFrontBackButton() {
+        return frontBackButton;
+    }
+
+
     public void changeFrontBackImage() {
         if (isFront) {
             td.startTransition(500);
@@ -120,10 +129,74 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.location_setting: {
-                item.setChecked(!item.isChecked());
-                kestrelLogic.getLocationHandling().setIsRandomValues(!item.isChecked());
+                if(!item.isChecked()) {
+                    if (kestrelLogic.getLocationHandling().isDeniedPermissions()) {
+                        new MaterialAlertDialogBuilder(this).
+                                setCancelable(false)
+                                .setMessage("אינך יכול להשתמש באפשרות זו בעקבות היעדר גישה להרשאות מיקום, הורד את האפליקצייה מחדש או אפשר הרשאת מיקום לאפליקציה בהגדרות המכשיר על מנת לאפשר זאת.")
+                                .setPositiveButton("אוקיי", (dialog, which) -> {
+                                }).create()
+                                .show();
+                    }
+                    else
+                    {
+                        item.setChecked(!item.isChecked());
+                        kestrelLogic.getLocationHandling().setIsRandomValues(!item.isChecked());
+                    }
+                }
+                else{
+                    item.setChecked(!item.isChecked());
+                    kestrelLogic.getLocationHandling().setIsRandomValues(!item.isChecked());
+                }
                 return true;
             }
+            case R.id.user_guide:
+            {
+                String url = getString(R.string.user_guide_link);
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+                return true;
+            }
+            case R.id.user_guide_english:
+            {
+                String url = getString(R.string.user_guide_english_link);
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+                return true;
+            }
+            case R.id.share:
+            {
+                //shareActionProvider = (ShareActionProvider)menuItem.getActionProvider();
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Kestrel Meter App");
+                String msg = "\nאפליקציית קסטרל להורדה:\n\n" + "https://play.google.com/store/apps/details?id=" +  BuildConfig.APPLICATION_ID + "\n\n";
+                shareIntent.putExtra(Intent.EXTRA_TEXT, msg);
+                startActivity(Intent.createChooser(shareIntent, "שיתוף באמצעות:"));
+                return  true;
+            }
+            case R.id.contact:
+            {
+                Intent i = new Intent(Intent.ACTION_SENDTO);
+                i.setData(Uri.parse("mailto:hanarmekarparapps@gmail.com"));
+                i.putExtra(Intent.EXTRA_SUBJECT ,"");
+                i.putExtra(Intent.EXTRA_TEXT ,"");
+                try{
+                    startActivity(Intent.createChooser(i,"שלח מייל..."));
+                } catch (android.content.ActivityNotFoundException ex){
+                    Toast.makeText(MainActivity.this,"לא מותקן שירות מייל", Toast.LENGTH_LONG).show();
+                }
+                return  true;
+            }
+            case R.id.privacy_agreement:
+            {
+                Intent intent = new Intent(getApplicationContext(),
+                        PrivacyPolicyActivity.class);
+                startActivity(intent);
+            }
+
 
         }
 
