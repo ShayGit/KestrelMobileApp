@@ -3,6 +3,7 @@ package com.hanar.kestrelmobileapp;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
@@ -22,6 +23,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textview.MaterialTextView;
 
+import static android.content.Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT;
+
 @SuppressLint("ClickableViewAccessibility")
 
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private KestrelLogic kestrelLogic;
     private boolean locationPref;
     private SequenceExample sq;
+    private boolean showGuide;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences("mySettings", MODE_PRIVATE);
+        showGuide = settings.getBoolean("showGuide", true);
+/*
+        if(showGuide)
+        {
+            sq.onClick(findViewById(R.id.userGuideButton));
+        }
+        */
+
+        super.onStart();
+    }
+
+
+    @Override
     protected void onStop() {
         SharedPreferences settings = getApplicationContext().getSharedPreferences("mySettings", MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
@@ -53,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
         super.onStop();
     }
+
+
 
     private void initialize() {
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -153,16 +175,20 @@ public class MainActivity extends AppCompatActivity {
             case R.id.user_guide:
             {
                 String url = getString(R.string.user_guide_link);
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
+                Intent i = new Intent(Intent.ACTION_VIEW,Uri.parse(url))
+                        .setFlags(FLAG_ACTIVITY_LAUNCH_ADJACENT |
+                                Intent.FLAG_ACTIVITY_NEW_TASK |
+                                Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+
                 startActivity(i);
                 return true;
             }
             case R.id.user_guide_english:
             {
                 String url = getString(R.string.user_guide_english_link);
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
+                Intent i = new Intent(Intent.ACTION_VIEW,Uri.parse(url)).setFlags(FLAG_ACTIVITY_LAUNCH_ADJACENT |
+                        Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 startActivity(i);
                 return true;
             }

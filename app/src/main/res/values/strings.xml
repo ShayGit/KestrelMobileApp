@@ -12,6 +12,13 @@
     <string name="hold_text">Hold</string>
     <string name="share">שתף</string>
     <string name="contact">צור קשר</string>
+    <string name="windSpeed">מהירות הרוח</string>
+    <string name="temperature">טמפרטורה</string>
+    <string name="windChill">עומס קור</string>
+    <string name="humidity">לחות יחסית</string>
+    <string name="discomfortIndex">אינדקס חוסר נוחות</string>
+
+
 
 
     <string name="privacy_policy"><a href="https://ventilatorapp.flycricket.io/privacy.html">• מדיניות פרטיות </a> </string>

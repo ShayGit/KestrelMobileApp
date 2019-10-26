@@ -1,12 +1,14 @@
 
 package com.hanar.kestrelmobileapp;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +16,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +25,8 @@ import java.util.List;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 public class SequenceExample implements View.OnClickListener {
@@ -33,6 +39,7 @@ public class SequenceExample implements View.OnClickListener {
     private MaterialShowcaseSequence sequence;
     private boolean isUsingLocation = false;
     public static final String DEFAULT_MASK_COLOUR = "#dd335075";
+
 
 
     private static final String SHOWCASE_ID = "sequence example";
@@ -74,14 +81,26 @@ public class SequenceExample implements View.OnClickListener {
         frontBackButton = activity.findViewById(R.id.frontBackButton);
 
 
+
     }
 
     @Override
     public void onClick(View v) {
 
         if (v.getId() == R.id.userGuideButton) {
+            TextView title = new TextView(activity);
+            title.setText("שימו לב!");
+            title.setPadding(10, 10, 30, 10);
+            title.setGravity(Gravity.RIGHT);
+            title.setTextColor(activity.getResources().getColor(R.color.red));
+            title.setTypeface(null, Typeface.BOLD);
 
-
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+            builder.setCustomTitle(title).setMessage("האפליקציה אינה מהווה תחליף לשימוש במכשיר הקסטרל ומשמשת לתרגול והבנה בלבד.")
+                    .setCancelable(false)
+                    .setPositiveButton("הבנתי", (dialog, id) -> {
+                        dialog.dismiss();
+                    }).create().show();
             MaterialShowcaseView.resetSingleUse(activity, SHOWCASE_ID);
             presentShowcaseSequence();
 
