@@ -110,6 +110,8 @@ public class SequenceExample implements View.OnClickListener {
         }
     }
 
+
+
     private void presentShowcaseSequence() {
         zl.resetZoom();
 
@@ -278,6 +280,11 @@ public class SequenceExample implements View.OnClickListener {
         if (!activity.getIsFront()) {
             activity.changeFrontBackImage();
         }
+    }
+
+    public Button getUserGuideButton() {
+        return userGuideButton;
+
     }
 
 }

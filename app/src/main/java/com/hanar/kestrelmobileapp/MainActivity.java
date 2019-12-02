@@ -51,17 +51,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        SharedPreferences settings = getApplicationContext().getSharedPreferences("mySettings", MODE_PRIVATE);
-        showGuide = settings.getBoolean("showGuide", true);
-/*
-        if(showGuide)
-        {
-            sq.onClick(findViewById(R.id.userGuideButton));
-        }
-        */
+    protected void onResume() {
+        super.onResume();
 
-        super.onStart();
+
+
     }
 
 
@@ -138,6 +132,17 @@ public class MainActivity extends AppCompatActivity {
         locationItem.setChecked(locationPref);
         kestrelLogic.setLocationSettingItem(locationItem);
         kestrelLogic.getLocationHandling().setIsRandomValues(!locationItem.isChecked());
+
+        SharedPreferences settings = getApplicationContext().getSharedPreferences("mySettings", MODE_PRIVATE);
+        showGuide = settings.getBoolean("showGuide", true);
+
+        if(showGuide)
+        {
+            sq.onClick(sq.getUserGuideButton());
+        }
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("showGuide", false);
+        editor.apply();
         return true;
     }
 
