@@ -40,6 +40,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/guideline" />
 
+            =
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/batterycase"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="0dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@+id/guideline2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_bias="1"
+                app:layout_constraintStart_toEndOf="@id/kestrelayout"
+                app:layout_constraintTop_toBottomOf="@+id/measurementExplain"
+                app:srcCompat="@drawable/batterycase" />
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/measurementExplain"
                 android:layout_width="0dp"

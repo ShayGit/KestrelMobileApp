@@ -1,6 +1,8 @@
 package com.hanar.kestrelmobileapp;
 
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
@@ -14,9 +16,11 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
@@ -35,8 +39,8 @@ public class KestrelLogic {
     private MaterialButton powerButton, rightButton, leftButton;
     private eKestrelMeasurement eKestrelMeasurementScreen;
     private MaterialTextView measurementTextView, measurementIconText, holdText, measurementExplain;
-    private AppCompatImageView measurementIcon1, measurementIcon2, measurementIcon3, measurementIcon4, kestrelFan;
-    private boolean isPowerOn;
+    private AppCompatImageView measurementIcon1, measurementIcon2, measurementIcon3, measurementIcon4, kestrelFan, coin, battery, batterycase;
+    private boolean isPowerOn, isCaseOpen;
     private WeatherData weatherData;
     private ValueAnimator valueAnimator1, valueAnimator2;
     private TransitionDrawable td;
@@ -47,7 +51,7 @@ public class KestrelLogic {
     private Handler handler;
     private View kestrelLight;
     private long downTimePower, upTimePower, downTimeLeft, upTimeLeft;
-    private boolean isHoldChanged,upNotDown;
+    private boolean isHoldChanged, upNotDown;
     private int downTwiceNoUp;
 
 
@@ -69,6 +73,9 @@ public class KestrelLogic {
         measurementIcon2.setImageResource(R.drawable.ic_dropicon);
         measurementIcon3.setImageResource(R.drawable.ic_percentageicon);
         measurementIcon4.setImageResource(R.drawable.ic_temperatureicon);
+        coin = activity.findViewById(R.id.coin);
+        battery = activity.findViewById(R.id.battery);
+        batterycase = activity.findViewById(R.id.batterycase);
         kestrelFan = activity.findViewById(R.id.kestrelfan);
         kestrelLayout = activity.findViewById(R.id.kestrelayout);
         frontBackButton = fbb;
@@ -126,6 +133,65 @@ public class KestrelLogic {
         measurementExplain.setTextColor(Color.BLACK);
         measurementExplain.setTypeface(Typeface.DEFAULT_BOLD);
 
+        coin.setImageResource(0);
+        coin.setOnClickListener((view) -> {
+            if (isCaseOpen) {
+                coin.animate().rotation(0).setDuration(1000).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        batterycase.setVisibility(View.INVISIBLE);
+                        coin.setImageResource(R.drawable.coin);
+                        battery.setVisibility(View.INVISIBLE);
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                       coin.setImageResource(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+
+
+                isCaseOpen =!isCaseOpen;
+
+            } else {
+                coin.animate().rotation(-90).setDuration(1000).setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        coin.setImageResource(R.drawable.coin);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        batterycase.setVisibility(View.VISIBLE);
+
+                        battery.setVisibility(View.VISIBLE);
+                        coin.setImageResource(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                }).start();
+                isCaseOpen =!isCaseOpen;
+            }
+        });
         setMeasurementFont();
         initializeAnimationViews();
 
@@ -138,7 +204,7 @@ public class KestrelLogic {
                     downTimePower = event.getDownTime();
                     powerButton.setPressed(true);
 
-                    if(!leftButton.isPressed()) {
+                    if (!leftButton.isPressed()) {
                         isHoldChanged = false;
                     }
                    /* else if ( !isHoldChanged) {
@@ -169,10 +235,9 @@ public class KestrelLogic {
                 case MotionEvent.ACTION_DOWN: {
                     downTimePower = event.getDownTime();
                     v.setPressed(true);
-                    if(!powerButton.isPressed()) {
+                    if (!powerButton.isPressed()) {
                         isHoldChanged = false;
-                    }
-                    else if (!isHoldChanged) {
+                    } else if (!isHoldChanged) {
                         holdTextVisibilityChange();
                         isHoldChanged = true;
                     }
@@ -181,7 +246,7 @@ public class KestrelLogic {
                 case MotionEvent.ACTION_UP: {
 
                     upTimeLeft = event.getEventTime();
-                    if ( !isHoldChanged) {
+                    if (!isHoldChanged) {
                         eKestrelMeasurementScreen = eKestrelMeasurementScreen.previous();
                         setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
                     }
@@ -234,6 +299,9 @@ public class KestrelLogic {
             measurementExplain.setAlpha(alpha);
             kestrelLight.setAlpha(alpha);
             holdText.setAlpha(alpha);
+            if(isCaseOpen) {
+                battery.setAlpha((float) valueAnimator2.getAnimatedValue());
+            }
 
         });
 
@@ -250,18 +318,21 @@ public class KestrelLogic {
             measurementExplain.setAlpha(alpha);
             kestrelLight.setAlpha(alpha);
             holdText.setAlpha(alpha);
+            if(isCaseOpen) {
+                battery.setAlpha((float) valueAnimator1.getAnimatedValue());
+            }
 
         });
     }
 
-     void onPowerButtonClicked() {
+    void onPowerButtonClicked() {
         if (!isPowerOn) {
             isPowerOn = !isPowerOn;
             frontBackButton.setEnabled(false);
             locationHandling.setIsPowerOn(!isPowerOn);
             locationHandling.locationRequestOnKestrelStart();
             locationSettingItem.setChecked(!locationHandling.getIsRandomValues());
-        } else if(locationHandling.getProgressBar().getVisibility() ==View.INVISIBLE){
+        } else if (locationHandling.getProgressBar().getVisibility() == View.INVISIBLE) {
             int isExecuted = 0;
             if (handler.hasMessages(isExecuted)) {
                 handler.removeCallbacksAndMessages(null);
@@ -280,7 +351,7 @@ public class KestrelLogic {
         }
     }
 
-     void onPowerButtonPressed3Sec() {
+    void onPowerButtonPressed3Sec() {
         if (isPowerOn) {
             isPowerOn = !isPowerOn;
             locationHandling.setIsPowerOn(!isPowerOn);
@@ -303,6 +374,7 @@ public class KestrelLogic {
         powerButton.setVisibility(View.VISIBLE);
         rightButton.setVisibility(View.VISIBLE);
         leftButton.setVisibility(View.VISIBLE);
+        coin.setVisibility(View.INVISIBLE);
     }
 
     private void enableKestrelButtonsWithoutPower() {
@@ -319,13 +391,15 @@ public class KestrelLogic {
         powerButton.setVisibility(View.INVISIBLE);
         rightButton.setVisibility(View.INVISIBLE);
         leftButton.setVisibility(View.INVISIBLE);
+        coin.setVisibility(View.VISIBLE);
+
     }
 
     @SuppressLint("SetTextI18n")
     public void setKestrelMeasurementViewAndIcons(eKestrelMeasurement eKestrelMeasurementInstance) {
         switch (eKestrelMeasurementInstance) {
             case Temperature:
-                measurementTextView.setText(String.format("%.1f",weatherData.getTemperature()));
+                measurementTextView.setText(String.format("%.1f", weatherData.getTemperature()));
                 measurementExplain.setMaxLines(1);
                 measurementExplain.setText(activity.getResources().getString(R.string.temperature));
                 measurementIcon4.setVisibility(View.VISIBLE);
@@ -336,7 +410,7 @@ public class KestrelLogic {
                 measurementIconText.setText("°C");
                 break;
             case WindSpeed:
-                measurementTextView.setText(String.format("%.1f",weatherData.getWindSpeed()));
+                measurementTextView.setText(String.format("%.1f", weatherData.getWindSpeed()));
                 measurementExplain.setMaxLines(3);
                 measurementExplain.setText(activity.getResources().getString(R.string.windSpeed));
                 measurementIcon1.setVisibility(View.VISIBLE);
@@ -347,7 +421,7 @@ public class KestrelLogic {
                 measurementIconText.setText("m/s");
                 break;
             case Humidity:
-                measurementTextView.setText(String.format("%d",weatherData.getHumidity()));
+                measurementTextView.setText(String.format("%d", weatherData.getHumidity()));
                 measurementExplain.setMaxLines(3);
                 measurementExplain.setText(activity.getResources().getString(R.string.humidity));
                 measurementIcon1.setVisibility(View.INVISIBLE);
@@ -358,7 +432,7 @@ public class KestrelLogic {
                 measurementIconText.setVisibility(View.INVISIBLE);
                 break;
             case WindChill:
-                measurementTextView.setText(String.format("%.1f",weatherData.getWindChill()));
+                measurementTextView.setText(String.format("%.1f", weatherData.getWindChill()));
                 measurementExplain.setMaxLines(3);
                 measurementExplain.setText(activity.getResources().getString(R.string.windChill));
                 measurementIcon1.setVisibility(View.VISIBLE);
@@ -369,7 +443,7 @@ public class KestrelLogic {
                 measurementIconText.setText("°C");
                 break;
             case DiscomfortIndex:
-                measurementTextView.setText(String.format("%.1f",weatherData.getDiscomfortIndex()));
+                measurementTextView.setText(String.format("%.1f", weatherData.getDiscomfortIndex()));
                 measurementExplain.setMaxLines(3);
                 measurementExplain.setText(activity.getResources().getString(R.string.discomfortIndex));
                 measurementIcon1.setVisibility(View.INVISIBLE);
@@ -449,7 +523,7 @@ public class KestrelLogic {
         return this.locationHandling;
     }
 
-     boolean getIsPowerOn() {
+    boolean getIsPowerOn() {
         return this.isPowerOn;
     }
 
@@ -461,6 +535,7 @@ public class KestrelLogic {
         this.locationSettingItem = locationSettingItem;
         locationHandling.setLocationSettingItem(locationSettingItem);
     }
+
     MenuItem getLocationSettingItem() {
         return this.locationSettingItem;
     }
@@ -471,20 +546,25 @@ public class KestrelLogic {
 
     private void holdTextVisibilityChange() {
         if (holdText.getVisibility() == View.VISIBLE) {
+            holdText.clearAnimation();
             holdText.setVisibility(View.INVISIBLE);
         } else {
             holdText.setVisibility(View.VISIBLE);
+            Animation anim = new AlphaAnimation(0.0f, 1.0f);
+            anim.setDuration(250); //You can manage the blinking time with this parameter
+            anim.setStartOffset(20);
+            anim.setRepeatMode(Animation.REVERSE);
+            anim.setRepeatCount(Animation.INFINITE);
+            holdText.startAnimation(anim);
 
         }
     }
 
-     void setDefaultMeasurement()
-    {
+    void setDefaultMeasurement() {
         eKestrelMeasurementScreen = eKestrelMeasurement.WindSpeed;
     }
 
-    void onRightButtonClick()
-    {
+    void onRightButtonClick() {
         eKestrelMeasurementScreen = eKestrelMeasurementScreen.next();
         setKestrelMeasurementViewAndIcons(eKestrelMeasurementScreen);
     }
