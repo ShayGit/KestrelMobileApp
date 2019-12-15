@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         frontBackButton.setText(R.string.front_button);
         frontBackButton.setOnClickListener((v) -> changeFrontBackImage());
         sq = new SequenceExample(this);
-        
+
     }
 
     @SuppressLint("MissingPermission")
