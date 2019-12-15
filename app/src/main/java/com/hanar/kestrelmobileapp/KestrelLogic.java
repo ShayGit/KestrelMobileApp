@@ -300,7 +300,7 @@ public class KestrelLogic {
             kestrelLight.setAlpha(alpha);
             holdText.setAlpha(alpha);
             if(isCaseOpen) {
-                battery.setAlpha((float) valueAnimator2.getAnimatedValue());
+                battery.setVisibility(View.INVISIBLE);
             }
 
         });
@@ -319,7 +319,7 @@ public class KestrelLogic {
             kestrelLight.setAlpha(alpha);
             holdText.setAlpha(alpha);
             if(isCaseOpen) {
-                battery.setAlpha((float) valueAnimator1.getAnimatedValue());
+               battery.setVisibility(View.VISIBLE);
             }
 
         });
@@ -468,6 +468,7 @@ public class KestrelLogic {
         measurementIconText.setVisibility(View.INVISIBLE);
         //set background light off
         kestrelLight.setVisibility(View.INVISIBLE);
+        holdText.clearAnimation();
         holdText.setVisibility(View.INVISIBLE);
     }
 
