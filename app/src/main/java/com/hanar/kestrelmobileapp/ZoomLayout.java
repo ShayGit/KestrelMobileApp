@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import com.google.android.material.button.MaterialButton;
 
 /**
  * Layout that provides pinch-zooming of content. This view should have exactly one child
@@ -57,6 +60,36 @@ public class ZoomLayout extends FrameLayout implements ScaleGestureDetector.OnSc
     @SuppressLint("ClickableViewAccessibility")
     private void init(Context context) {
         final ScaleGestureDetector scaleDetector = new ScaleGestureDetector(context, this);
+        final GestureDetector gd = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+
+
+            //here is the method for double tap
+
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                findViewById(R.id.frontBackButton).performClick();
+                return true;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                super.onLongPress(e);
+
+            }
+
+            @Override
+            public boolean onDoubleTapEvent(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
+
+        });
         this.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -101,10 +134,13 @@ public class ZoomLayout extends FrameLayout implements ScaleGestureDetector.OnSc
                     applyScaleAndTranslation();
                 }
 
+                gd.onTouchEvent(motionEvent);
                 return true;
             }
         });
     }
+
+
 
     // ScaleGestureDetector
 

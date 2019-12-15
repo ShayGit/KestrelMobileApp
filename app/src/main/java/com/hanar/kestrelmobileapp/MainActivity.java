@@ -93,50 +93,7 @@ public class MainActivity extends AppCompatActivity {
         frontBackButton.setText(R.string.front_button);
         frontBackButton.setOnClickListener((v) -> changeFrontBackImage());
         sq = new SequenceExample(this);
-
-        final GestureDetector gd = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener(){
-
-
-            //here is the method for double tap
-
-
-            @Override
-            public boolean onDoubleTap(MotionEvent e) {
-
-                changeFrontBackImage();
-
-                return true;
-            }
-
-            @Override
-            public void onLongPress(MotionEvent e) {
-                super.onLongPress(e);
-
-            }
-
-            @Override
-            public boolean onDoubleTapEvent(MotionEvent e) {
-                return true;
-            }
-
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return true;
-            }
-
-
-        });
-
-//here yourView is the View on which you want to set the double tap action
-
-        findViewById(R.id.zoom_layout).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                return gd.onTouchEvent(event);
-            }
-        });
-
+        
     }
 
     @SuppressLint("MissingPermission")
